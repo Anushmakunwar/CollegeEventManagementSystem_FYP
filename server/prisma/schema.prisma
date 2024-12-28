@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPERADMIN
+  SCHOOLADMIN
+  ADMIN
+  STUDENT
+}
+
+model User {
+  id              String       @id @default(uuid())
+  fullName        String
+  email           String       @unique
+  password        String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  isActive        Boolean      @default(false)
+  isEmailVerified Boolean      @default(false)
+  isArchived      Boolean      @default(false)
+  images          String?
+  facultyId       String?
+  schoolId        String?
+  school          School?      @relation("SchoolAdmin")
+  roles           Role[]       @default([STUDENT])
+  faculty         Faculty?     @relation("FacultyUsers", fields: [facultyId], references: [id])
+  events          Event[]      @relation("EventCreator")
+  attendance      Attendance[]
+  tokens          Token[]
+}
+
+model School {
+  id            String    @id @default(uuid())
+  name          String
+  location      String
+  suffix        String    @unique // e.g., unilag.edu.ng
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  schoolAdminId String    @unique
+  schoolAdmin   User      @relation("SchoolAdmin", fields: [schoolAdminId], references: [id])
+  faculties     Faculty[] @relation("SchoolFaculties")
+}
+
+model Faculty {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  schools   School[] @relation("SchoolFaculties")
+  events    Event[]
+  users     User[]   @relation("FacultyUsers")
+}
+
+model Token {
+  id           String   @id @default(uuid())
+  refreshToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime // Expiry time of the refresh token
+}
+
+model Auth {
+  id    String @id @default(uuid())
+  email String @unique
+  otp   String
+}
+
+model Event {
+  id                   String       @id @default(uuid())
+  name                 String
+  startTime            DateTime
+  endTime              DateTime
+  hostNames            String[]
+  guestNames           String[]
+  venue                String
+  registrationDeadline DateTime
+  facultyId            String?
+  faculty              Faculty?     @relation(fields: [facultyId], references: [id])
+  description          String
+  date                 DateTime
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  scope                Scope // "SCHOOL" or "FACULTY"
+  creatorId            String
+  creator              User         @relation("EventCreator", fields: [creatorId], references: [id])
+  attendance           Attendance[]
+}
+
+enum Scope {
+  SCHOOL
+  FACULTY
+}
+
+model Attendance {
+  id         String  @id @default(uuid())
+  userId     String
+  eventId    String
+  isAttended Boolean @default(false)
+  user       User    @relation(fields: [userId], references: [id])
+  event      Event   @relation(fields: [eventId], references: [id])
+}

@@ -1,0 +1,74 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+logs
+*.log
+logs/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Dependency directories
+server/node_modules/
+web/node_modules/
+mobile/node_modules/
+
+# Build directories
+server/dist/
+web/.next/
+mobile/.expo/
+mobile/build/
+
+# Next.js
+.next/
+out/
+
+# Expo / React Native
+.expo/
+.expo-shared/
+web-build/
+ios/
+android/
+
+# Environment files
+.env
+.env.*.local
+
+# macOS
+.DS_Store
+
+# Linux
+*.swp
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# VS Code
+# .vscode/
+*.code-workspace
+
+# IDE and editor files
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Coverage
+coverage/
+*.lcov
+
+# Miscellaneous
+*.lock

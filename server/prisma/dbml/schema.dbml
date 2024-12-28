@@ -1,0 +1,122 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id String [pk]
+  fullName String [not null]
+  email String [unique, not null]
+  password String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  isActive Boolean [not null, default: false]
+  isEmailVerified Boolean [not null, default: false]
+  isArchived Boolean [not null, default: false]
+  images String
+  facultyId String
+  schoolId String
+  school School
+  roles Role[] [not null]
+  faculty Faculty
+  events Event [not null]
+  attendance Attendance [not null]
+  tokens Token [not null]
+}
+
+Table School {
+  id String [pk]
+  name String [not null]
+  location String [not null]
+  suffix String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  schoolAdminId String [unique, not null]
+  schoolAdmin User [not null]
+  faculties Faculty [not null]
+}
+
+Table Faculty {
+  id String [pk]
+  name String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  schools School [not null]
+  events Event [not null]
+  users User [not null]
+}
+
+Table Token {
+  id String [pk]
+  refreshToken String [unique, not null]
+  userId String [not null]
+  user User [not null]
+  createdAt DateTime [default: `now()`, not null]
+  expiresAt DateTime [not null]
+}
+
+Table Auth {
+  id String [pk]
+  email String [unique, not null]
+  otp String [not null]
+}
+
+Table Event {
+  id String [pk]
+  name String [not null]
+  startTime DateTime [not null]
+  endTime DateTime [not null]
+  hostNames String[] [not null]
+  guestNames String[] [not null]
+  venue String [not null]
+  registrationDeadline DateTime [not null]
+  facultyId String
+  faculty Faculty
+  description String [not null]
+  date DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  scope Scope [not null]
+  creatorId String [not null]
+  creator User [not null]
+  attendance Attendance [not null]
+}
+
+Table Attendance {
+  id String [pk]
+  userId String [not null]
+  eventId String [not null]
+  isAttended Boolean [not null, default: false]
+  user User [not null]
+  event Event [not null]
+}
+
+Table SchoolFaculties {
+  facultiesId String [ref: > Faculty.id]
+  schoolsId String [ref: > School.id]
+}
+
+Enum Role {
+  SUPERADMIN
+  SCHOOLADMIN
+  ADMIN
+  STUDENT
+}
+
+Enum Scope {
+  SCHOOL
+  FACULTY
+}
+
+Ref: User.facultyId > Faculty.id
+
+Ref: School.schoolAdminId - User.id
+
+Ref: Token.userId > User.id
+
+Ref: Event.facultyId > Faculty.id
+
+Ref: Event.creatorId > User.id
+
+Ref: Attendance.userId > User.id
+
+Ref: Attendance.eventId > Event.id
