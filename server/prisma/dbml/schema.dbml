@@ -21,6 +21,7 @@ Table User {
   events Event [not null]
   attendance Attendance [not null]
   tokens Token [not null]
+  managedSchool School
 }
 
 Table School {
@@ -30,14 +31,16 @@ Table School {
   suffix String [unique, not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
-  schoolAdminId String [unique, not null]
-  schoolAdmin User [not null]
+  adminId String [unique]
+  admin User
+  users User [not null]
   faculties Faculty [not null]
+  events Event [not null]
 }
 
 Table Faculty {
   id String [pk]
-  name String [not null]
+  name String [unique, not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   schools School [not null]
@@ -69,6 +72,8 @@ Table Event {
   guestNames String[] [not null]
   venue String [not null]
   registrationDeadline DateTime [not null]
+  schoolId String
+  school School
   facultyId String
   faculty Faculty
   description String [not null]
@@ -107,11 +112,15 @@ Enum Scope {
   FACULTY
 }
 
+Ref: User.schoolId - School.id
+
 Ref: User.facultyId > Faculty.id
 
-Ref: School.schoolAdminId - User.id
+Ref: School.adminId - User.id
 
 Ref: Token.userId > User.id
+
+Ref: Event.schoolId > School.id
 
 Ref: Event.facultyId > Faculty.id
 

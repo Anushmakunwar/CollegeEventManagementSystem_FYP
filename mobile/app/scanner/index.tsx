@@ -15,7 +15,7 @@ const Scanner = () => {
             Request Camera Persmission
           </Text>
         </Pressable>
-        <Link href="/" asChild>
+        <Link href="/camera" asChild>
           <Pressable disabled={!isPermissionGranted}>
             <Text
               style={{

@@ -3,7 +3,7 @@ import { FaHome, FaBell } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <div className="absolute bottom-0 flex justify-between items-center px-[16px] h-[64px] bg-[#E4E4E4] w-full">
+    <div className="mt-auto flex justify-between items-center px-[16px] h-[64px] bg-[#E4E4E4] w-full">
       <Link href="/">
         <FaHome className="text-[32px]" />
       </Link>

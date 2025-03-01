@@ -31,29 +31,32 @@ model User {
   images          String?
   facultyId       String?
   schoolId        String?
-  school          School?      @relation("SchoolAdmin")
+  school          School?      @relation("SchoolUser", fields: [schoolId], references: [id])
   roles           Role[]       @default([STUDENT])
   faculty         Faculty?     @relation("FacultyUsers", fields: [facultyId], references: [id])
   events          Event[]      @relation("EventCreator")
   attendance      Attendance[]
   tokens          Token[]
+  managedSchool   School?      @relation("SchoolAdmin")
 }
 
 model School {
-  id            String    @id @default(uuid())
-  name          String
-  location      String
-  suffix        String    @unique // e.g., unilag.edu.ng
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  schoolAdminId String    @unique
-  schoolAdmin   User      @relation("SchoolAdmin", fields: [schoolAdminId], references: [id])
-  faculties     Faculty[] @relation("SchoolFaculties")
+  id        String    @id @default(uuid())
+  name      String
+  location  String
+  suffix    String    @unique // e.g., unilag.edu.ng
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  adminId   String?   @unique // Ensure only one admin per school
+  admin     User?     @relation("SchoolAdmin", fields: [adminId], references: [id])
+  users     User[]    @relation("SchoolUser")
+  faculties Faculty[] @relation("SchoolFaculties")
+  events    Event[]
 }
 
 model Faculty {
   id        String   @id @default(uuid())
-  name      String
+  name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   schools   School[] @relation("SchoolFaculties")
@@ -85,6 +88,8 @@ model Event {
   guestNames           String[]
   venue                String
   registrationDeadline DateTime
+  schoolId             String?
+  school               School?      @relation(fields: [schoolId], references: [id])
   facultyId            String?
   faculty              Faculty?     @relation(fields: [facultyId], references: [id])
   description          String

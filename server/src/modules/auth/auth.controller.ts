@@ -3,7 +3,12 @@ import { AppError } from "../../middleware/errorHandler"; // AppError is assumed
 import { generateOTP, verifyOTP } from "../../utils/otp";
 import { LogInReturnDto } from "../../types/type";
 import { comparePassword, hashPassword } from "../../utils/bcrypt";
-import { generateJWT, generateRefreshToken, verifyJWT } from "../../utils/jwt";
+import {
+  generateJWT,
+  generateRefreshToken,
+  verifyJWT,
+  verifyRefreshJWT,
+} from "../../utils/jwt";
 import { Response, Request } from "express";
 import * as jwt from "jsonwebtoken";
 import { mailer } from "../../services/mailer";
@@ -13,15 +18,15 @@ const prisma = new PrismaClient();
 const refreshAccessToken = async (refreshToken: string): Promise<any> => {
   try {
     // Verify the refresh token
-    const decoded = verifyJWT(refreshToken) as any;
+    const decoded = verifyRefreshJWT(refreshToken) as any;
 
     const { data } = decoded;
-    if (!data) new AppError("Invalid token", 400);
+    if (!data) throw new AppError("Invalid token", 400);
 
     const user = await prisma.user.findUnique({
       where: { id: data.id },
     });
-    if (!user) new AppError("User not found", 404);
+    if (!user) throw new AppError("User not found", 404);
 
     // Generate a new access token
     const newAccessToken = generateJWT({
@@ -133,17 +138,24 @@ const login = async (
   res: Response,
 ): Promise<LogInReturnDto> => {
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        school: true,
+      },
+    });
     if (!user) throw new AppError("user not found", 404);
-    if (!user?.isEmailVerified) new AppError("Email is not verified yet", 400);
+    if (!user?.isEmailVerified)
+      throw new AppError("Email is not verified yet", 400);
     if (!user?.isActive)
-      new AppError("User is not active . Please contact admin", 400);
+      throw new AppError("User is not active . Please contact admin", 400);
     const isValidPw = await comparePassword(password, user?.password);
-    if (!isValidPw) new AppError("User or password is incorrect", 400);
+    if (!isValidPw) throw new AppError("User or password is incorrect", 400);
     const payload = {
       id: user?.id,
       email: user?.email,
       roles: user?.roles,
+      schoolSuffix: "@" + user?.school?.suffix,
     };
 
     const accessToken = generateJWT(payload);
@@ -168,7 +180,12 @@ const login = async (
     });
 
     return {
-      user: { name: user?.fullName, roles: user?.roles, email: user?.email },
+      user: {
+        name: user?.fullName,
+        roles: user?.roles,
+        email: user?.email,
+        schoolSuffix: "@" + user?.school?.suffix,
+      },
       accessToken,
     };
   } catch (e) {
@@ -183,7 +200,7 @@ const logout = async (
   try {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      new AppError("Refresh token is missing", 400);
+      throw new AppError("Refresh token is missing", 400);
     }
     // Find and delete the refresh token from the database
     const tokenRecord = await prisma.token.findUnique({
@@ -191,7 +208,7 @@ const logout = async (
     });
 
     if (!tokenRecord) {
-      new AppError("Refresh token not found", 404);
+      throw new AppError("Refresh token not found", 404);
     }
 
     // Delete the token from the database
@@ -215,7 +232,7 @@ const logout = async (
 const regenerateToken = async (email: string): Promise<boolean> => {
   try {
     const auth = await prisma.auth.findUnique({ where: { email: email } });
-    if (!auth) new AppError("User is not available", 404);
+    if (!auth) throw new AppError("User is not available", 404);
     const newToken = generateOTP();
     await prisma.auth.update({
       where: { email },
@@ -228,7 +245,7 @@ const regenerateToken = async (email: string): Promise<boolean> => {
   }
 };
 
-const generateToken = async (email: string): Promise<boolean> => {
+const generateFbToken = async (email: string): Promise<boolean> => {
   try {
     const user = await prisma.user.findUnique({
       where: {
@@ -238,7 +255,7 @@ const generateToken = async (email: string): Promise<boolean> => {
       },
     });
 
-    if (!user) new AppError("User is not available", 404);
+    if (!user) throw new AppError("User is not available", 404);
 
     const otp = generateOTP();
     await prisma.auth.create({ data: { email, otp } });
@@ -249,19 +266,34 @@ const generateToken = async (email: string): Promise<boolean> => {
     throw e;
   }
 };
+const regenerateFPToken = async (email: string): Promise<boolean> => {
+  try {
+    const auth = await prisma.auth.findUnique({ where: { email } });
+    if (!auth) throw new AppError("User is not available", 404);
+    const newToken = generateOTP();
+    await prisma.auth.update({
+      where: { email },
+      data: { otp: newToken },
+    });
+    await mailer(email, newToken, "OTP for Forget password reset");
+    return true;
+  } catch (e) {
+    throw e;
+  }
+};
 
-const forgetPassowrd = async (
+const forgetPassword = async (
   email: string,
   otp: string,
   password: string,
 ): Promise<boolean> => {
   try {
     const auth = await prisma.auth.findUnique({ where: { email } });
-    if (!auth) new AppError("user not found", 404);
+    if (!auth) throw new AppError("user not found", 404);
     const isValidToken = await verifyOTP(otp);
-    if (!isValidToken) new AppError("Token expired", 400);
+    if (!isValidToken) throw new AppError("Token expired", 400);
     const emailValid = auth?.otp === otp;
-    if (!emailValid) new AppError("Token mismatch", 400);
+    if (!emailValid) throw new AppError("Token mismatch", 400);
     const hashPasswords = await hashPassword(password);
     await prisma.user.update({
       where: { email },
@@ -283,9 +315,9 @@ const changePassword = async (
 ): Promise<boolean> => {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) new AppError("user not found", 404);
+    if (!user) throw new AppError("user not found", 404);
     const isValidPw = await comparePassword(oldPassword, user?.password || "");
-    if (!isValidPw) new AppError("User or password is incorrect", 400);
+    if (!isValidPw) throw new AppError("User or password is incorrect", 400);
     const hashPasswords = await hashPassword(newPassword);
     await prisma.user.update({
       where: { email },
@@ -306,7 +338,8 @@ export {
   refreshAccessToken,
   logout,
   regenerateToken,
-  generateToken,
-  forgetPassowrd,
+  generateFbToken,
+  regenerateFPToken,
+  forgetPassword,
   changePassword,
 };

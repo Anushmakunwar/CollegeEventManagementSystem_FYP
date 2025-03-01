@@ -9,13 +9,12 @@ const seed = async () => {
     data: {
       fullName: "Super Admin",
       email: "superadmin@example.com",
-      password: await hashPassword('supersecurepassword'),
-      roles: ['SUPERADMIN'] as Role[], // Superadmin role
+      password: await hashPassword("supersecurepassword"),
+      roles: ["SUPERADMIN"] as Role[], // Superadmin role
       isActive: true,
+      isEmailVerified: true,
     },
   });
-
-  console.log("Superadmin created successfully!");
 
   // Create schools and associated admins
   for (let i = 1; i <= 2; i++) {
@@ -24,13 +23,14 @@ const seed = async () => {
         name: `School ${i}`,
         location: `Location ${i}`,
         suffix: `school${i}.edu.ng`,
-        schoolAdmin: {
+        admin: {
           create: {
             fullName: `School Admin ${i}`,
             email: `schooladmin${i}@example.com`,
-            password: await hashPassword('adminsecurepassword'),
-            roles: ['SCHOOLADMIN'] as Role[], // Correct role type
+            password: await hashPassword("adminsecurepassword"),
+            roles: ["SCHOOLADMIN"] as Role[], // Correct role type
             isActive: true,
+            isEmailVerified: true,
           },
         },
       },
@@ -42,8 +42,8 @@ const seed = async () => {
         data: {
           fullName: `Faculty Admin ${i}${j}`,
           email: `facultyadmin${i}${j}@example.com`,
-          password: await hashPassword('facultyadminpassword'),
-          roles: ['ADMIN'] as Role[], // Correct role type
+          password: await hashPassword("facultyadminpassword"),
+          roles: ["ADMIN"] as Role[], // Correct role type
           isActive: true,
           schoolId: school.id, // Link the admin to the school
         },
@@ -74,13 +74,13 @@ const seed = async () => {
               registrationDeadline: new Date(),
               description: `Event Description for Faculty ${i}${j}`,
               date: new Date(),
-              scope: 'FACULTY',
+              scope: "FACULTY",
               creator: {
                 create: {
                   fullName: `Admin for Event ${i}${j}`,
                   email: `admin.event${i}${j}@example.com`,
-                  password: await hashPassword('eventadminpassword'),
-                  roles: ['ADMIN'] as Role[], // Correct role type
+                  password: await hashPassword("eventadminpassword"),
+                  roles: ["ADMIN"] as Role[], // Correct role type
                   isActive: true,
                   facultyId: faculty.id, // Link event admin to the faculty
                   schoolId: school.id,

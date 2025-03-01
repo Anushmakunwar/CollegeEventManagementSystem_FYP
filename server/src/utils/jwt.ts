@@ -23,8 +23,19 @@ export const verifyJWT = (token: string) => {
     return jwt.verify(token, process.env.JWT_SECRET as string);
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      new AppError("Access token expired", 401);
+      throw new AppError("Access token expired", 401);
     }
-    new AppError("Invalid access token", 400);
+    throw new AppError("Invalid access token", 400);
+  }
+};
+
+export const verifyRefreshJWT = (token: string) => {
+  try {
+    return jwt.verify(token, process.env.JWT_REFRESH_SECRET as string);
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      throw new AppError("Access token expired", 401);
+    }
+    throw new AppError("Invalid access token", 400);
   }
 };

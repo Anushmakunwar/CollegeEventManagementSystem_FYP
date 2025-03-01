@@ -5,17 +5,13 @@ import secureAPI from "../../utils/secure";
 
 const router = express.Router();
 
-router.get("/", secureAPI(["SUPERADMIN"]), (req: Request, res: Response) => {
-  res.send("Welcome to index");
-});
-
 router.post(
   "/refresh",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refreshToken = req.cookies["refreshToken"];
       const result = await controller.refreshAccessToken(refreshToken);
-      respond(res, 200, "Accesstoken created successfully", {
+      respond(res, 200, "Access token created successfully", {
         result,
       });
     } catch (err) {
@@ -53,16 +49,19 @@ router.post(
   },
 );
 
-router.post("/regenerate", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const result = await controller.regenerateToken(req.body.email);
-    respond(res, 200, "Token regenerated successfully", {
-      result,
-    });
-  } catch (err) {
-    next(err);
-  }
-} );
+router.post(
+  "/regenerate",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await controller.regenerateToken(req.body.email);
+      respond(res, 200, "Token regenerated successfully", {
+        result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 router.post(
   "/verify",
@@ -94,4 +93,69 @@ router.post(
     }
   },
 );
+
+router.post(
+  "/generate-fb-token",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await controller.generateFbToken(req.body.email);
+      respond(res, 200, "Token generated successfully", {
+        result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+router.put(
+  "/regenerate-fb-token",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await controller.regenerateFPToken(req.body.email);
+      respond(res, 200, "Token regenerated successfully", {
+        result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+router.put(
+  "/forget-password",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await controller.forgetPassword(
+        req.body.email,
+        req.body.otp,
+        req.body.password,
+      );
+      respond(res, 200, "Token generated successfully", {
+        result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+router.put(
+  "/change-password",
+  secureAPI(["ADMIN", "SCHOOLADMIN", "STUDENT", "SUPERADMIN"]),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await controller.changePassword(
+        req.body.email,
+        req.body.oldPassword,
+        req.body.newPassword,
+      );
+      respond(res, 200, "Password changed successfully", {
+        result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
 export default router;

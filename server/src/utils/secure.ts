@@ -22,8 +22,8 @@ const secureAPI = (roles: Role[]) => {
     try {
       const token = req?.headers?.authorization;
       if (!token) return next(new AppError("Access token required", 500));
+      const accessToken = token.split("Admin ")[1];
 
-      const accessToken = token.split("Bearer ")[1];
       const { data } = verifyJWT(accessToken) as { data: JWTData | null }; // Ensure correct typing
 
       if (!data) return next(new AppError("Data is not available", 404));
@@ -35,12 +35,14 @@ const secureAPI = (roles: Role[]) => {
       if (!user) {
         return next(new AppError("User not found", 404));
       }
-
+      console.log(user, "checkuser");
       // Ensure user.id and user.roles are assigned safely
       if (user.id && user.roles) {
         (request as any).currentUser = user?.id;
         (request as any).currentUserName = user?.fullName;
         (request as any).currentRoles = user?.roles;
+        (request as any).schoolId = user?.schoolId;
+        (request as any).facultyId = user?.facultyId;
       } else {
         return next(new AppError("User data incomplete", 400));
       }

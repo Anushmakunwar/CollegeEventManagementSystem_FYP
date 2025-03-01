@@ -1,7 +1,8 @@
 import React from "react";
+import NewPasswordForm from "./_components/emailForm/newpasswordForm";
 
 const NewPassword = () => {
-  return <div>NewPassword</div>;
+  return <NewPasswordForm />;
 };
 
 export default NewPassword;

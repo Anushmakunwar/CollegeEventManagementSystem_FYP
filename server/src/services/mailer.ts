@@ -11,12 +11,20 @@ const transporter = createTransport({
   },
 });
 
-export const mailer = async (email: string, subject: string, html: string) => {
+export const mailer = async (
+  email: string,
+  subject: string,
+  html: string,
+  attachments?: any,
+) => {
   const info = await transporter.sendMail({
     from: process.env.GMAIL_USER,
     to: email,
     subject,
+    text: html,
+    attachDataUrls: true,
     html,
+    attachments,
   });
   return info.messageId;
 };

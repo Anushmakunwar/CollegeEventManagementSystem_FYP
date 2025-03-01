@@ -16,6 +16,7 @@ export type LogInReturnDto = {
     name: string;
     roles: string[];
     email: string;
+    schoolSuffix?: string | null;
   };
   accessToken: string;
 };

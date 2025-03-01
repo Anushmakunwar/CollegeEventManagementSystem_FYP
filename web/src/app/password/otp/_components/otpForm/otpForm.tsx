@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import useTimer from "../../../../../../hooks/useTimer";
+import useTimer from "../../../../../hooks/useTimer";
 
 export default function OTPForm() {
   const { isResendAvailable, counter, setCounter } = useTimer();
