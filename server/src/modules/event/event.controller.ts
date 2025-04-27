@@ -3,9 +3,11 @@ import { AppError } from "../../middleware/errorHandler"; // AppError is assumed
 import { getReturn } from "../../types/type";
 import { generateQR } from "../../utils/qrcode";
 import { sendEventRegistrationEmail } from "../../services/event-register-male";
+import { mailer } from "../../services/mailer";
 const prisma = new PrismaClient();
 
 const create = async (
+  currentUserName: string,
   userId: string,
   roles: string[],
   facultyId: string,
@@ -44,6 +46,65 @@ const create = async (
     const result = await prisma.event.create({
       data: rest,
     });
+
+    if (rest.scope === "SCHOOL") {
+      const findAllStudentInSchool = await prisma.user.findMany({
+        where: {
+          schoolId,
+          roles: {
+            has: "STUDENT",
+          },
+        },
+      });
+      if (findAllStudentInSchool.length > 0) {
+        findAllStudentInSchool.map(async (std) => {
+          await mailer(
+            std.email,
+            `New Event: ${result.name} - Register Now!`,
+            `<h2>Dear ${std.fullName}</h2>
+              <h4>We are excited to inform you that a new event has been added to the School calendar:</h4>
+                          <h2>Event Details:</h2>
+            <h4><strong>Event Name:</strong>${result.name}</h4>
+              <h4><strong>Date & Time:</strong> ${result.startTime}</h4>
+            <h4><strong>Location:</strong> ${result.venue}</h4>
+            <h4><strong>Organized By:</strong> School Admin : ${currentUserName}</h4>
+            
+            <h2>About the Event:</h2>
+            <h4>${result.description}</h4>
+  `,
+          );
+        });
+      }
+    } else {
+      const findAllStudentInFaculty = await prisma.user.findMany({
+        where: {
+          schoolId,
+          facultyId,
+          roles: {
+            has: "STUDENT",
+          },
+        },
+      });
+      if (findAllStudentInFaculty.length > 0) {
+        findAllStudentInFaculty.map(async (std) => {
+          await mailer(
+            std.email,
+            `New Event: ${result.name} - Register Now!`,
+            `<h2>Dear ${std.fullName}</h2>
+              <h4>We are excited to inform you that a new event has been added to the Faculty calendar:</h4>
+                          <h2>Event Details:</h2>
+            <h4><strong>Event Name:</strong>${result.name}</h4>
+              <h4><strong>Date & Time:</strong> ${result.startTime}</h4>
+            <h4><strong>Location:</strong> ${result.venue}</h4>
+            <h4><strong>Organized By:</strong> Faculty Admin : ${currentUserName}</h4>
+            
+            <h2>About the Event:</h2>
+            <h4>${result.description}</h4>
+  `,
+          );
+        });
+      }
+    }
     if (!result) throw new AppError("Error creating event", 500);
     return result;
   } catch (e) {
@@ -51,21 +112,28 @@ const create = async (
   }
 };
 const eventAttendance = async (userId: string, eventId: string) => {
-  const findAttendance = await prisma.attendance.findFirst({
-    where: { userId, eventId },
-  });
+  try {
+    const findAttendance = await prisma.attendance.findFirst({
+      where: { userId, eventId },
+    });
+    console.log(findAttendance, "findattendence");
 
-  if (!findAttendance) {
-    throw new AppError("User has not registered for this event", 401);
+    if (!findAttendance) {
+      throw new AppError("User has not registered for this event", 401);
+    }
+    if (findAttendance.isAttended) {
+      throw new AppError("User already register ! ", 401);
+    }
+
+    const updated = await prisma.attendance.update({
+      where: { id: findAttendance.id },
+      data: { isAttended: true },
+    });
+    console.log(updated, "updated");
+    return updated;
+  } catch (error) {
+    throw error;
   }
-
-  console.log(findAttendance.id);
-
-  const updated = await prisma.attendance.update({
-    where: { id: findAttendance.id },
-    data: { isAttended: true },
-  });
-  return updated;
 };
 
 const listEvent = async (
@@ -153,12 +221,12 @@ const listEventForSchoolUser = async (
   limit: number = 10,
   page: number = 1,
   search?: { name?: string },
+  filter?: { filter?: string },
 ): Promise<getReturn> => {
   try {
-    console.log(schoolId, facultyId, roles, limit, page, search, "===");
-    // Initialize the base where condition
+    const now = new Date();
+    // console.log(schoolId, facultyId, roles, limit, page, search, "===");
     const whereCondition: any = { schoolId };
-
     // Role-based filtering
     if (roles?.includes("SCHOOLADMIN")) {
       whereCondition.scope = { in: ["SCHOOL", "FACULTY"] };
@@ -179,7 +247,18 @@ const listEventForSchoolUser = async (
         mode: "insensitive",
       };
     }
-
+    // Event filtering logic
+    if (filter?.filter === "today") {
+      whereCondition.AND = [
+        { startTime: { lte: now } }, // Event started
+        { endTime: { gte: now } }, // Event not yet ended
+      ];
+    } else if (filter?.filter === "upcoming") {
+      whereCondition.startTime = { gt: now }; // Starts in the future
+    } else if (filter?.filter === "previous") {
+      whereCondition.endTime = { lt: now }; // Already ended
+    }
+    console.log(whereCondition, "============");
     // Fetch total count
     const total = await prisma.event.count({ where: whereCondition });
 
@@ -202,12 +281,38 @@ const getById = async (id: string, userId: string) => {
     const event = await prisma.event.findUnique({
       where: { id },
     });
+
     const findAttendance = await prisma.attendance.findFirst({
       where: { userId, eventId: id },
     });
 
     //@ts-ignore
-    event.isRegister = findAttendance ? true : false;
+    event?.isRegister = findAttendance ? true : false;
+
+    if (!event) throw new AppError("Event not found", 404);
+    return event;
+  } catch (err) {
+    throw err;
+  }
+};
+
+const getByIdForAdmins = async (id: string, userId: string) => {
+  try {
+    const event = await prisma.event.findUnique({
+      where: { id },
+    });
+    const totalAttended = await prisma.attendance.count({
+      where: { isAttended: true, eventId: id },
+    });
+    const totalRegistered = await prisma.attendance.count({
+      where: { eventId: id },
+    });
+
+    //@ts-ignore
+    event.totalRegisterUser = totalRegistered;
+    //@ts-ignore
+    event.totalAttendedUser = totalAttended;
+
     if (!event) throw new AppError("Event not found", 404);
     return event;
   } catch (err) {
@@ -274,6 +379,8 @@ const registerEvent = async (eventId: string, userId: string) => {
     throw e;
   }
 };
+
+const getEventForDiffDate = async () => {};
 export {
   create,
   listEvent,
@@ -283,4 +390,5 @@ export {
   registerEvent,
   listEventForSchoolUser,
   eventAttendance,
+  getByIdForAdmins,
 };

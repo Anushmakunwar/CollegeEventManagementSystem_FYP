@@ -15,6 +15,9 @@ app.use(cors(corsOptions)); // Apply CORS middleware with options
 
 app.use(cookieParser());
 
+app.get("/hey", (req, res) => {
+  res.send("Hello");
+});
 app.use("/", indexRouter);
 
 app.use(ErrorHandler);

@@ -9,6 +9,8 @@ const prisma = new PrismaClient();
 const createUser = async (
   roles: string[],
   schoolId: string,
+  facultyId?: string,
+  //@ts-ignore
   payload: Prisma.UserCreateInput,
 ): Promise<Prisma.UserCreateInput | null> => {
   try {
@@ -60,6 +62,7 @@ const createUser = async (
       case "ADMIN":
         rest.roles = ["STUDENT"];
         rest.schoolId = schoolId;
+        rest.facultyId = facultyId;
         break;
       default:
         throw new Error("Invalid role");
@@ -231,12 +234,73 @@ const archive = async (id: string, isArchived: boolean) => {
   }
 };
 
+const studentProfile = async (id: string) => {
+  try {
+    console.log(id);
+    const findStd = await prisma.user.findFirst({
+      where: { id },
+      include: {
+        attendance: {
+          select: {
+            id: true,
+            isAttended: true,
+            event: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        school: {
+          select: {
+            name: true,
+          },
+        },
+        faculty: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    return findStd;
+  } catch (err) {
+    throw err;
+  }
+};
+const adminProfile = async (id: string) => {
+  try {
+    console.log(id);
+    const findAd = await prisma.user.findFirst({
+      where: { id },
+      include: {
+        school: {
+          select: {
+            name: true,
+          },
+        },
+        faculty: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    return findAd;
+  } catch (err) {
+    throw err;
+  }
+};
+
 export {
   createUser,
   getUser,
   getById,
   updateById,
   resetPassword,
+  adminProfile,
   block,
   archive,
+  studentProfile,
 };

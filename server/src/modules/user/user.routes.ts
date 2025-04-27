@@ -6,7 +6,7 @@ import secureAPI from "../../utils/secure";
 
 router.post(
   "/",
-  secureAPI(["SUPERADMIN", "SCHOOLADMIN"]),
+  secureAPI(["SUPERADMIN", "SCHOOLADMIN", "ADMIN"]),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await controller.createUser(
@@ -14,6 +14,8 @@ router.post(
         req.currentRoles as string[],
         //@ts-ignore
         req.schoolId as string,
+        //@ts-ignore
+        req.facultyId as string,
         req.body,
       );
       respond(res, 200, "User created successfully", result);
@@ -44,6 +46,38 @@ router.get(
         parsedPage,
         searchParams,
       );
+      respond(res, 200, "User fetched successfully", {
+        result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+router.get(
+  "/std-profile",
+  secureAPI(["STUDENT"]),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      //@ts-ignore
+      let id = req.currentUser;
+      const result = await controller.studentProfile(id as string);
+      respond(res, 200, "User fetched successfully", {
+        result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+router.get(
+  "/admin-profile",
+  secureAPI(["ADMIN"]),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      //@ts-ignore
+      let id = req.currentUser;
+      const result = await controller.adminProfile(id as string);
       respond(res, 200, "User fetched successfully", {
         result,
       });

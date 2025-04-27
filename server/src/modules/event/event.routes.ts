@@ -11,6 +11,8 @@ router.post(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await controller.create(
+        //@ts-ignore
+        req.currentUserName as string,
         // @ts-ignore
         req.currentUser as string,
         // @ts-ignore
@@ -27,6 +29,43 @@ router.post(
     }
   },
 );
+router.get(
+  "/list",
+  secureAPI(["ADMIN", "SCHOOLADMIN", "STUDENT"]),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log("BEEEEEEEEPugeee");
+      const { page, limit, search, filter } = req.query;
+      const parsedPage = page ? parseInt(page as string, 10) : undefined;
+      const parsedLimit = limit ? parseInt(limit as string, 10) : undefined;
+      //@ts-ignore
+      const searchParams =
+        typeof search === "string" ? { name: search } : undefined;
+      const filterParams =
+        typeof filter === "string" ? { filter: filter } : undefined;
+      console.log(filter, search);
+      const result = await controller.listEventForSchoolUser(
+        // @ts-ignore
+        req.schoolId as string,
+        // @ts-ignorepreviousprevious
+        req.facultyId as string,
+        // @ts-ignore
+        req.currentRoles as string[],
+        parsedLimit,
+        parsedPage,
+        searchParams,
+        //@ts-ignore
+        filterParams,
+      );
+      respond(res, 200, "Event fetched successfully", {
+        result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
 router.post(
   "/register-event/:id",
   secureAPI(["STUDENT"]),
@@ -71,26 +110,14 @@ router.post(
 // );
 
 router.get(
-  "/list",
-  secureAPI(["ADMIN", "SCHOOLADMIN", "STUDENT"]),
+  "/counts/:id",
+  // secureAPI(["SUPERADMIN", "SCHOOLADMIN", "ADMIN"]),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { page, limit, search } = req.query;
-      const parsedPage = page ? parseInt(page as string, 10) : undefined;
-      const parsedLimit = limit ? parseInt(limit as string, 10) : undefined;
-      //@ts-ignore
-      const searchParams =
-        typeof search === "string" ? { name: search } : undefined;
-      const result = await controller.listEventForSchoolUser(
-        // @ts-ignore
-        req.schoolId as string,
-        // @ts-ignore
-        req.facultyId as string,
-        // @ts-ignore
-        req.currentRoles as string[],
-        parsedLimit,
-        parsedPage,
-        searchParams,
+      const result = await controller.getByIdForAdmins(
+        req.params.id,
+        //@ts-ignore
+        req.currentUser,
       );
       respond(res, 200, "Event fetched successfully", {
         result,
@@ -103,7 +130,7 @@ router.get(
 
 router.get(
   "/:id",
-  secureAPI(["SUPERADMIN", "SCHOOLADMIN", "ADMIN", "STUDENT"]),
+  secureAPI(["STUDENT"]),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await controller.getById(
@@ -150,10 +177,16 @@ router.patch(
   // secureAPI(["SCHOOLADMIN", "ADMIN"]),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      console.log("hello");
+      console.log(req.body);
+      // console.log(JSON.parse(req.body.data));
+      // @ts-ignore
       const result = await controller.eventAttendance(
         req.body.userId,
         req.body.eventId,
       );
+      console.log(result, "ressssssssssssss");
+
       respond(res, 200, "Event deleted successfully", result);
     } catch (err) {
       next(err);

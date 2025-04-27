@@ -20,7 +20,11 @@ const secureAPI = (roles: Role[]) => {
     next: NextFunction,
   ): Promise<void> => {
     try {
+      console.log(
+        "====================================================================================================",
+      );
       const token = req?.headers?.authorization;
+      console.log(token);
       if (!token) return next(new AppError("Access token required", 500));
       const accessToken = token.split("Admin ")[1];
 
