@@ -6,5 +6,6 @@ export const FormSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
   roles: z
     .array(z.enum(["SCHOOLADMIN", "ADMIN"]))
-    .length(1, "Role must have exactly one value"), // ✅ Enforces array with only one role
+    .length(1, "Role must have exactly one value")
+    .optional(), // ✅ Enforces array with only one role
 });

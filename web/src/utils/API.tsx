@@ -62,9 +62,9 @@ API.interceptors.response.use(
             {},
             { withCredentials: true },
           );
-
-          const newAccessToken = data.accessToken;
-
+          console.log(data.data.accessToken, "dataaaaaaaaa");
+          const newAccessToken = data.data.accessToken;
+          console.log(newAccessToken);
           // Store the new access token
           window.localStorage.setItem("access_token", newAccessToken);
 
