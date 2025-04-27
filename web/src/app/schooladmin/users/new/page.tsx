@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import usePost from "@/hooks/usePost";
 import { URLS } from "@/constants";
-import { useState } from "react";
 
 export default function CreateUser() {
   type User = z.infer<typeof FormSchema>;
@@ -13,48 +12,44 @@ export default function CreateUser() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors, isSubmitting },
+    reset,
   } = useForm<User>({
     resolver: zodResolver(FormSchema),
-    mode: "onBlur",
   });
 
   const { postMutation, error, isError, isPending, isSuccess } =
     usePost("postUser");
 
-  const onSubmit = (data: any) => {
-    postMutation({
-      url: URLS.USERS,
-      data,
-    });
+  const onSubmit = async (data: User) => {
+    postMutation({ url: URLS.USERS, data });
+    reset(); // Reset form after submission
   };
 
-  console.log("is valid", isValid);
-
   return (
-    <div>
-      <h2>Create User</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <div className="max-w-[20rem] w-full md:max-w-full mx-auto bg-white p-8 rounded-lg shadow-lg">
+      <h2 className="text-3xl font-bold mb-6 text-center">Create User</h2>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Full Name */}
         <div>
-          <label htmlFor="fullName" className="block text-2xl font-bold p-2">
+          <label htmlFor="fullName" className="block text-lg font-semibold mb-2">
             Full Name
           </label>
           <input
             {...register("fullName")}
             id="fullName"
             type="text"
-            placeholder="Ram Bahadur"
-            className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
+            placeholder="John Doe"
+            className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           {errors.fullName && (
-            <p className="text-red-500">{errors.fullName.message}</p>
+            <p className="text-red-500 mt-1">{errors.fullName.message}</p>
           )}
         </div>
 
         {/* Email */}
         <div>
-          <label htmlFor="email" className="block text-2xl font-bold p-2">
+          <label htmlFor="email" className="block text-lg font-semibold mb-2">
             Email
           </label>
           <input
@@ -62,69 +57,61 @@ export default function CreateUser() {
             id="email"
             type="email"
             placeholder="example@gmail.com"
-            className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
+            className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           {errors.email && (
-            <p className="text-red-500">{errors.email.message}</p>
+            <p className="text-red-500 mt-1">{errors.email.message}</p>
           )}
         </div>
 
         {/* Password */}
         <div>
-          <label htmlFor="password" className="block text-2xl font-bold p-2">
+          <label htmlFor="password" className="block text-lg font-semibold mb-2">
             Password
           </label>
           <input
             {...register("password")}
             id="password"
             type="password"
-            placeholder="password"
-            className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
+            placeholder="••••••••"
+            className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           {errors.password && (
-            <p className="text-red-500">{errors.password.message}</p>
+            <p className="text-red-500 mt-1">{errors.password.message}</p>
           )}
         </div>
 
-        {/* Role Selection (Dropdown) */}
+        {/* Role Selection */}
         <div>
-          <label htmlFor="roles" className="block text-2xl font-bold p-2">
+          <label htmlFor="roles" className="block text-lg font-semibold mb-2">
             Role
           </label>
           <select
             {...register("roles.0")}
             id="roles"
-            className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
+            className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             {/* <option value="SCHOOLADMIN">SCHOOL ADMIN</option> */}
             <option value="ADMIN">ADMIN</option>
           </select>
-          {errors.roles && (
-            <p className="text-red-500">{errors.roles.message}</p>
-          )}
+          {errors.roles && <p className="text-red-500 mt-1">{errors.roles.message}</p>}
         </div>
 
         {/* Submit Button */}
-        <div>
-          <button
-            type="submit"
-            disabled={isPending}
-            className={`w-full h-12 bg-green-400 text-white font-bold rounded-full hover:bg-green-500 ${
-              isPending ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {isPending ? "Creating..." : "Create User"}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={isPending || isSubmitting}
+          className="w-full bg-green-500 text-white py-3 rounded-md font-bold hover:bg-green-600 disabled:opacity-50"
+        >
+          {isPending || isSubmitting ? "Creating..." : "Create User"}
+        </button>
 
         {/* Success & Error Messages */}
         {isSuccess && (
-          <p className="text-green-500">User created successfully!</p>
+          <p className="text-green-500 text-center">User created successfully!</p>
         )}
         {isError && (
-          <p className="text-red-500">
-            {error?.message || "An error occurred"}
-          </p>
+          <p className="text-red-500 text-center">{error?.message || "An error occurred"}</p>
         )}
       </form>
     </div>

@@ -11,7 +11,7 @@ import { z } from "zod";
 export default function newEvent() {
   type EventForm = z.infer<typeof FormSchema>;
   const { postMutation, isError, isSuccess, data, error, success, isPending } =
-    usePost("adminEvent");
+    usePost("schoolAdminEvent");
   const router = useRouter();
   const {
     register,
@@ -42,24 +42,30 @@ export default function newEvent() {
 
   useEffect(() => {
     if (isSuccess) {
-      router.push("/admin/events");
+      router.push("/schooladmin/events");
     }
   }, [data]);
 
   const onSubmit = (data: any) => {
     data.guestNames = data.guestNames.map((el: any) => el.name);
+    // console.log(data);
     data.hostNames = data.hostNames.map((el: any) => el.name);
+    // data.description = "Event description here";
+    // data.registrationDeadline = "2021-01-30T23:59:59Z";
+    // data.startTime = "2021-01-01T10:00:00Z";
+    // data.endTime = "2021-01-01T12:00:00Z";
+    // data.date = "2021-01-30T23:59:59Z";
     console.log(data);
     postMutation({ url: URLS.EVENT, data });
   };
 
   return (
-    <div className="px-6 py-10 w-full mx-auto">
-      <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">Create Event</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <div className="px-[12px] py-[25px]">
+      <h2 className="text-[32px] mb-8 font-bold">Create Event</h2>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Event Name */}
         <div>
-          <label htmlFor="name" className="block text-lg font-semibold text-gray-700 mb-2">
+          <label htmlFor="name" className="block text-2xl font-bold p-2">
             Event Name
           </label>
           <input
@@ -67,40 +73,42 @@ export default function newEvent() {
             id="name"
             type="text"
             placeholder="Basic IT Literacy"
-            className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
+            className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
           />
-          {errors.name && <p className="text-red-600 mt-1">{errors.name.message}</p>}
+          {errors.name && <p className="text-red-500">{errors.name.message}</p>}
         </div>
 
         {/* Event Description */}
         <div>
-          <label htmlFor="description" className="block text-lg font-semibold text-gray-700 mb-2">
+          <label htmlFor="description" className="block text-2xl font-bold p-2">
             Event Description
           </label>
           <textarea
-            className="w-full h-40 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
+            className="w-full h-[150px] px-4 border resize-y focus:outline-none focus:ring-2 focus:ring-green-300"
             {...register("description")}
             id="description"
             placeholder="Your event description here"
           ></textarea>
-          {errors.description && <p className="text-red-600 mt-1">{errors.description.message}</p>}
+          {errors.description && (
+            <p className="text-red-500">{errors.description.message}</p>
+          )}
         </div>
 
         {/* Hosts */}
         <div>
-          <label className="block text-lg font-semibold text-gray-700 mb-2">Hosts</label>
+          <label className="block text-2xl font-bold p-2">Hosts</label>
           {hosts.map((host, index) => (
-            <div key={host.id} className="flex items-center space-x-2 mb-3">
+            <div key={host.id} className="flex items-center space-x-2 mb-2">
               <input
                 {...register(`hostNames.${index}.name`)}
                 type="text"
                 placeholder="Host Name"
-                className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
+                className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
               />
               <button
                 type="button"
                 onClick={() => removeHost(index)}
-                className="px-3 py-1 text-white bg-red-500 rounded-lg hover:bg-red-600 transition duration-200"
+                className="px-2 py-1 text-white bg-red-500 rounded"
               >
                 Remove
               </button>
@@ -109,28 +117,30 @@ export default function newEvent() {
           <button
             type="button"
             onClick={() => addHost({ name: "" })}
-            className="px-6 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-200"
+            className="px-4 py-2 text-white bg-blue-500 rounded"
           >
             Add Host
           </button>
-          {errors.hostNames && <p className="text-red-600 mt-1">{errors.hostNames.message}</p>}
+          {errors.hostNames && (
+            <p className="text-red-500">{errors.hostNames.message}</p>
+          )}
         </div>
 
         {/* Guests */}
         <div>
-          <label className="block text-lg font-semibold text-gray-700 mb-2">Guests</label>
+          <label className="block text-2xl font-bold p-2">Guests</label>
           {guests.map((guest, index) => (
-            <div key={guest.id} className="flex items-center space-x-2 mb-3">
+            <div key={guest.id} className="flex items-center space-x-2 mb-2">
               <input
                 {...register(`guestNames.${index}.name`)}
                 type="text"
                 placeholder="Guest Name"
-                className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
+                className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
               />
               <button
                 type="button"
                 onClick={() => removeGuest(index)}
-                className="px-3 py-1 text-white bg-red-500 rounded-lg hover:bg-red-600 transition duration-200"
+                className="px-2 py-1 text-white bg-red-500 rounded"
               >
                 Remove
               </button>
@@ -139,16 +149,18 @@ export default function newEvent() {
           <button
             type="button"
             onClick={() => addGuest({ name: "" })}
-            className="px-6 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition duration-200"
+            className="px-4 py-2 text-white bg-blue-500 rounded"
           >
             Add Guest
           </button>
-          {errors.guestNames && <p className="text-red-600 mt-1">{errors.guestNames.message}</p>}
+          {errors.guestNames && (
+            <p className="text-red-500">{errors.guestNames.message}</p>
+          )}
         </div>
 
         {/* Venue */}
         <div>
-          <label htmlFor="venue" className="block text-lg font-semibold text-gray-700 mb-2">
+          <label htmlFor="venue" className="block text-2xl font-bold p-2">
             Venue
           </label>
           <input
@@ -156,16 +168,18 @@ export default function newEvent() {
             id="venue"
             type="text"
             placeholder="Event Venue"
-            className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
+            className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
           />
-          {errors.venue && <p className="text-red-600 mt-1">{errors.venue.message}</p>}
+          {errors.venue && (
+            <p className="text-red-500">{errors.venue.message}</p>
+          )}
         </div>
 
         {/* Registration Deadline */}
         <div>
           <label
             htmlFor="registrationDeadline"
-            className="block text-lg font-semibold text-gray-700 mb-2"
+            className="block text-2xl font-bold p-2"
           >
             Registration Deadline
           </label>
@@ -173,46 +187,73 @@ export default function newEvent() {
             {...register("registrationDeadline", { valueAsDate: true })}
             id="registrationDeadline"
             type="date"
-            className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
+            className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
           />
           {errors.registrationDeadline && (
-            <p className="text-red-600 mt-1">{errors.registrationDeadline.message}</p>
+            <p className="text-red-500">
+              {errors.registrationDeadline.message}
+            </p>
           )}
         </div>
 
-        {/* Event Date-Time */}
+        {/* Event Day */}
         <div>
-          <label htmlFor="startTime" className="block text-lg font-semibold text-gray-700 mb-2">
+          <label htmlFor="startTime" className="block text-2xl font-bold p-2">
             Event Date-Time
           </label>
           <input
             {...register("startTime", { valueAsDate: true })}
             id="startTime"
             type="datetime-local"
-            className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
+            className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
           />
-          {errors.startTime && <p className="text-red-600 mt-1">{errors.startTime.message}</p>}
+          {errors.startTime && (
+            <p className="text-red-500">{errors.startTime.message}</p>
+          )}
         </div>
 
-        {/* Event End Date-Time */}
+        {/* Event Day */}
         <div>
-          <label htmlFor="endTime" className="block text-lg font-semibold text-gray-700 mb-2">
+          <label htmlFor="endTime" className="block text-2xl font-bold p-2">
             Event End Date-Time
           </label>
           <input
             {...register("endTime", { valueAsDate: true })}
             id="endTime"
             type="datetime-local"
-            className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
+            className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
           />
-          {errors.endTime && <p className="text-red-600 mt-1">{errors.endTime.message}</p>}
+          {errors.endTime && (
+            <p className="text-red-500">{errors.endTime.message}</p>
+          )}
         </div>
+
+        {/* Faculty Dropdown */}
+        {/* <div>
+          <label htmlFor="faculty" className="block text-2xl font-bold p-2">
+            Faculty
+          </label>
+          <select
+            {...register("faculty")}
+            id="faculty"
+            className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
+          >
+            <option value="">Select Faculty</option>
+            <option value="all">All Faculties</option>
+            <option value="science">Science</option>
+            <option value="commerce">Commerce</option>
+            <option value="arts">Arts</option>
+          </select>
+          {errors.faculty && (
+            <p className="text-red-500">{errors.faculty.message}</p>
+          )}
+        </div> */}
 
         {/* Submit Button */}
         <div>
           <button
             type="submit"
-            className="w-full h-12 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition duration-200"
+            className="w-full h-12 bg-green-400 text-white font-bold rounded-full hover:bg-green-500"
           >
             Create Event
           </button>

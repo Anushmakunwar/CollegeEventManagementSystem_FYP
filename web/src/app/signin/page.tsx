@@ -57,6 +57,8 @@ export default function login() {
     postMutation({ url: URLS.AUTH + "/login", data });
   }
 
+  // window.location.reload();
+
   if (isPending) {
     return (
       <div className="flex h-screen items-center justify-center">

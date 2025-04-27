@@ -17,36 +17,44 @@ export default function page() {
   } = useForm<{ name: string }>();
 
   const onSubmit = (data: any) => {
-    // console.log(data, isPending);
     postMutation({ url: URLS.FACULTY, data });
   };
 
   return (
-    <div>
-      <h2>Create Faculty</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <div className="w-full mx-auto p-6 bg-white shadow-md rounded-lg">
+      <h2 className="text-3xl font-semibold text-center mb-6">Create Faculty</h2>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-          <label htmlFor="faculty" className="block text-2xl font-bold p-2">
+          <label
+            htmlFor="faculty"
+            className="block text-xl font-medium text-gray-700 mb-2"
+          >
             Enter Faculty Name
           </label>
           <input
             type="text"
             id="faculty"
-            className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
-            {...register("name", { required: "Faculty is required" })}
+            className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+            placeholder="Enter Faculty Name"
+            {...register("name", { required: "Faculty name is required" })}
           />
-          {errors.name && <p className="text-red-500">{errors.name.message}</p>}
+          {errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+          )}
         </div>
         <div>
           <button
             disabled={isPending}
             type="submit"
-            className="w-full h-12 bg-green-400 text-white font-bold rounded-full hover:bg-green-500"
+            className="w-full h-12 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 disabled:opacity-50 transition duration-300"
           >
-            Create Event
+            {isPending ? "Creating..." : "Create Faculty"}
           </button>
         </div>
       </form>
+      {isSuccess && (
+        <p className="text-green-500 text-center mt-4">Faculty created successfully!</p>
+      )}
     </div>
   );
 }

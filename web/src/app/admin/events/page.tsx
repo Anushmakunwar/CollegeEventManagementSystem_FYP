@@ -1,37 +1,50 @@
 "use client";
-import { URLS } from "@/constants";
-import useList from "@/hooks/useList";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { FaArrowRightLong } from "react-icons/fa6";
 
 export default function AllEvents() {
-  const [events, setEvents] = useState({});
+  const eventDate = [
+    {
+      name: "today",
+      title: "Today Events",
+      bg: "bg-green-500/10",
+      text: "text-green-600",
+    },
+    {
+      name: "previous",
+      title: "Previous Events",
+      bg: "bg-red-500/10",
+      text: "text-red-600",
+    },
+    {
+      name: "upcoming",
+      title: "Upcoming Events",
+      bg: "bg-yellow-500/10",
+      text: "text-yellow-600",
+    },
+  ];
 
-  const { data, isError, isLoading } = useList(
-    "adminEvent",
-    `${URLS.EVENT}/list`,
-    1,
-    10,
-  );
-  useEffect(() => {
-    if (data) {
-      setEvents(data);
-    }
-  }, [data, setEvents]);
-  console.log(events);
   return (
-    <div>
-      {events?.data?.data.map((el, i) => (
-        <div key={i} className="border-black border-2 rounded-lg bg-[#D9D9D9]">
+    <div className="px-6 py-10">
+      <div className="flex align-middle justify-center">
+        <h2 className="text-3xl font-extrabold text-gray-800 mb-8">
+          All Events
+        </h2>
+      </div>
+
+      <div className="flex flex-col gap-6">
+        {eventDate.map((el, i) => (
           <Link
-            className="flex justify-between items-center px-3 py-1 leading-7"
-            href={"#"}
+            href={`/admin/events/list/${el.name}`}
+            key={i}
+            className={`flex items-center justify-between px-6 py-4 rounded-xl shadow-md border border-gray-200 transition-all hover:scale-[1.02] hover:shadow-lg ${el.bg}`}
           >
-            {el.name} <FaArrowRightLong />
+            <span className={`text-xl font-semibold ${el.text}`}>
+              {el.title}
+            </span>
+            <span className="text-gray-600 text-lg">&#8594;</span>
           </Link>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

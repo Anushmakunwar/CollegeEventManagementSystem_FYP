@@ -32,8 +32,9 @@ export default function RootLayout({
       <body className={`antialiased flex flex-col h-screen`}>
         <TanstackProvider>
           {/* <Header /> */}
-          <div className="grid grid-cols-[17rem,1fr] h-full">
+          <div className="grid grid-cols-[16rem,1fr] h-full">
             <SideMenu />
+            
             {children}
           </div>
           {/* <Footer /> */}

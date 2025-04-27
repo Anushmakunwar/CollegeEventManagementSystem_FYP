@@ -15,8 +15,6 @@ export default function AllSchools() {
   const [selectedFacultyId, setSelectedFacultyId] = useState<string | null>(
     null,
   );
-  // const [admins, setSchools] = useState({});
-  // const [admins, setAdmins] = useState({});
   const [page, setPage] = useState(1);
 
   const {
@@ -27,7 +25,7 @@ export default function AllSchools() {
     "FACULTY_API",
     `${URLS.SCHOOL}/faculty-by-suffix?suffix=${schoolSuffix}`,
     1,
-    10,
+    9,
   );
 
   const {
@@ -44,22 +42,9 @@ export default function AllSchools() {
     data: admins,
     isError,
     isLoading,
-  } = useList("user", `${URLS.USERS}/list?search=ADMIN`, 1, 10);
-
-  console.log(admins, "-------------------------------");
-
-  //   const { data, isError, isLoading } = useList(
-  //     "user",
-  //     `${URLS.USERS}/list?search=SCHOOLADMIN`,
-  //     1,
-  //     10,
-  //   );
+  } = useList("FACULTY_API", `${URLS.USERS}/list?search=ADMIN`, 1, 10);
 
   const handleSelectItem = (id: string | number) => {
-    // setSelectedItemId(id);
-    console.log("school adminId", id);
-    // console.log("schoolID", selectedSchoolId);
-    // now do post req on backend with this id
     putMutation({
       urls: `${URLS.USERS}/${id}`,
       data: { facultyId: selectedFacultyId },
@@ -68,82 +53,66 @@ export default function AllSchools() {
 
   const handleAssignClick = (facultyId: string) => {
     setSelectedFacultyId(facultyId);
+    setIsModalOpen(true);
   };
-
-  // useEffect(() => {
-  //   if (data) {
-  //     setAdmins(data);
-  //   }
-  // }, [data, setAdmins]);
 
   const totalFaculty = faculties?.data?.total || 0;
   const totalPages = Math.ceil(totalFaculty / 10);
-  console.log(faculties?.data);
+
   return (
-    <div className="px-4">
-      <p className="mt-7 mb-4 text-center">All Faculties</p>
-      <div className="flex flex-col gap-4">
+    <div className="px-6 py-4">
+      <p className="text-2xl font-semibold text-center mb-6">All Faculties</p>
+
+      {/* Faculty List */}
+      <div className="space-y-4">
         {faculties?.data?.length > 0 &&
           faculties.data.map((el, i) => (
             <div
               key={i}
-              className="border-black border-2 rounded-lg bg-[#D9D9D9]"
+              className="bg-white shadow-md rounded-lg p-4 border border-gray-200 hover:shadow-xl transition duration-300"
             >
-              <div className="flex justify-between items-center px-3 py-1 leading-7">
-                {el.name}
-                <div
-                  onClick={() => {
-                    handleAssignClick(el.id);
-                    setIsModalOpen(true);
-                  }}
-                  className="cursor-pointer underline"
+              <div className="flex justify-between items-center mb-3">
+                <p className="text-lg font-semibold">{el.name}</p>
+                <button
+                  onClick={() => handleAssignClick(el.id)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none transition duration-200"
                 >
                   {el.users.length > 0 ? "Change Admin" : "Assign Admin"}
-                </div>
+                </button>
               </div>
             </div>
           ))}
-        {/* <div className="border-black border-2 rounded-lg bg-[#D9D9D9]">
-          <Link
-            className="flex justify-between items-center px-3 py-1 leading-7"
-            href={"#"}
-          >
-            Event 1 <FaArrowRightLong />
-          </Link>
-        </div>
-        <div className="border-black border-2 rounded-lg bg-[#D9D9D9]">
-          <Link
-            className="flex justify-between items-center px-3 py-1 leading-7"
-            href={"#"}
-          >
-            Event 1 <FaArrowRightLong />
-          </Link>
-        </div> */}
       </div>
-      <div>
-        {assignedNewFaultyAdmin && (
-          <p className="text-green-500">Admin changed successfully!</p>
-        )}
-      </div>
+
+      {/* Admin assignment success message */}
+      {assignedNewFaultyAdmin && (
+        <p className="text-green-500 mt-4 text-center">
+          Admin changed successfully!
+        </p>
+      )}
+
+      {/* Pagination Controls */}
       <div className="flex justify-center items-center gap-4 mt-6">
         <button
-          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition duration-200 disabled:opacity-50"
           onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
           disabled={page === 1}
         >
           Previous
         </button>
-        <span>
+        <span className="text-sm">
           Page {page} of {totalPages}
         </span>
         <button
-          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition duration-200 disabled:opacity-50"
           onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
           disabled={page === totalPages}
         >
           Next
         </button>
       </div>
+
+      {/* Modal to assign admin */}
       <Modal
         isOpen={isModalOpen}
         items={admins?.data?.data?.filter((admin) => admin.facultyId === null)}
