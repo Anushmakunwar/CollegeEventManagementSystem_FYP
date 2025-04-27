@@ -41,7 +41,8 @@
         {
           "cameraPermission": "Allow CEMS to access your camera"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
