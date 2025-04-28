@@ -13,7 +13,6 @@ export default function page() {
   const [selectedFacultyId, setSelectedFacultyId] = useState<string | null>(
     null,
   );
-  // const [admins, setSchools] = useState({});
   const [admins, setAdmins] = useState({});
   const [page, setPage] = useState(1);
 
@@ -39,19 +38,7 @@ export default function page() {
     1,
     10,
   );
-
-  //   const { data, isError, isLoading } = useList(
-  //     "user",
-  //     `${URLS.USERS}/list?search=SCHOOLADMIN`,
-  //     1,
-  //     10,
-  //   );
-
-  const handleSelectItem = (id: string | number) => {
-    // setSelectedItemId(id);
-    console.log("school adminId", id);
-    // console.log("schoolID", selectedSchoolId);
-    // now do post req on backend with this id
+  const handleSelectItem = (id: string | number) => { 
     putMutation({
       urls: `${URLS.USERS}/${id}`,
       data: { facultyId: selectedFacultyId },
@@ -94,22 +81,6 @@ export default function page() {
             </div>
           </div>
         ))}
-        {/* <div className="border-black border-2 rounded-lg bg-[#D9D9D9]">
-          <Link
-            className="flex justify-between items-center px-3 py-1 leading-7"
-            href={"#"}
-          >
-            Event 1 <FaArrowRightLong />
-          </Link>
-        </div>
-        <div className="border-black border-2 rounded-lg bg-[#D9D9D9]">
-          <Link
-            className="flex justify-between items-center px-3 py-1 leading-7"
-            href={"#"}
-          >
-            Event 1 <FaArrowRightLong />
-          </Link>
-        </div> */}
       </div>
       <div>
         {assignedNewFaultyAdmin && (

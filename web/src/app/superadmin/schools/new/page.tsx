@@ -23,7 +23,7 @@ export default function CreateSchool() {
 
   const onSubmit = async (data: SchoolForm) => {
     postMutation({ url: URLS.SCHOOL, data });
-    reset(); // Reset form after submission
+    reset(); 
   };
 
   return (
@@ -39,7 +39,7 @@ export default function CreateSchool() {
             {...register("name")}
             id="name"
             type="text"
-            placeholder="Madan Bhandari Memorial College"
+            placeholder="Islington College "
             className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           {errors.name && (

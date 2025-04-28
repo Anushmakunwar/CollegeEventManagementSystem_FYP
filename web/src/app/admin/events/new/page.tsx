@@ -28,7 +28,7 @@ export default function newEvent() {
     remove: removeHost,
   } = useFieldArray({
     control: control,
-    name: "hostNames", // Field array for hosts
+    name: "hostNames", 
   });
 
   const {
@@ -37,7 +37,7 @@ export default function newEvent() {
     remove: removeGuest,
   } = useFieldArray({
     control,
-    name: "guestNames", // Field array for guests
+    name: "guestNames",
   });
 
   useEffect(() => {

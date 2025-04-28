@@ -143,18 +143,7 @@ export default function login() {
               </div>
             </form>
 
-            <div className="my-6 flex items-center justify-between">
-              <span className="w-10/12 border-t"></span>
-              <span className="text-sm px-2 text-gray-500">Or</span>
-              <span className="w-10/12 border-t"></span>
-            </div>
-
-            <div className="flex justify-around text-sm">
-              <span>New to the App?</span>
-              <Link href="#" className="text-blue-500 font-bold">
-                Register
-              </Link>
-            </div>
+ 
           </div>
         </div>
       </div>

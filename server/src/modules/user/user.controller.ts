@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client"; // Importing PrismaClient
+import { Prisma, PrismaClient } from "@prisma/client";
 import { comparePassword, hashPassword } from "../../utils/bcrypt";
 import { mailer } from "../../services/mailer";
 import { getReturn } from "../../types/type";
@@ -57,7 +57,7 @@ const createUser = async (
         break;
       case "SCHOOLADMIN":
         rest.roles = ["ADMIN"];
-        rest.schoolId = schoolId; // No school assigned initially
+        rest.schoolId = schoolId; 
         break;
       case "ADMIN":
         rest.roles = ["STUDENT"];
@@ -74,7 +74,6 @@ const createUser = async (
       data: rest as Prisma.UserUncheckedCreateInput,
     });
 
-    // Send a welcome email (outside transaction)
     if (newUser?.email) {
       await mailer(
         newUser.email,

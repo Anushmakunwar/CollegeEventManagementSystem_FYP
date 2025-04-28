@@ -23,7 +23,7 @@ export default function CreateUser() {
 
   const onSubmit = async (data: User) => {
     postMutation({ url: URLS.USERS, data });
-    reset(); // Reset form after submission
+    reset();
   };
 
   return (

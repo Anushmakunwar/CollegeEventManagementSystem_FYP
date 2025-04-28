@@ -1,5 +1,5 @@
-import { Prisma, PrismaClient } from "@prisma/client"; // Importing PrismaClient
-import { AppError } from "../../middleware/errorHandler"; // AppError is assumed to be a custom error class
+import { Prisma, PrismaClient } from "@prisma/client"; 
+import { AppError } from "../../middleware/errorHandler"; 
 import { getReturn } from "../../types/type";
 
 const prisma = new PrismaClient();

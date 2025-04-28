@@ -11,14 +11,12 @@ import {
 import { useEffect, useRef, useState } from "react";
 import Overlay from "./Overlay";
 
-// Define types for API response
 interface ApiResponse {
   success: boolean;
   status: number;
   message: string;
 }
 
-// Define types for QR data
 interface QrData {
   userId: string;
   eventId: string;
@@ -77,7 +75,7 @@ export default function Camera() {
       console.log("Sending request:", requestBody);
 
       const response = await fetch(
-        "http://192.168.1.191:3333/api/v1/events", // Replace with env variable in production
+        "http://192.168.1.191:3333/api/v1/events",
         {
           method: "PATCH",
           headers: {
@@ -87,7 +85,6 @@ export default function Camera() {
         }
       );
 
-      // Parse JSON response
       const responseData: ApiResponse = await response.json();
 
       if (!response.ok) {
@@ -98,7 +95,7 @@ export default function Camera() {
         {
           text: "OK",
           onPress: () => {
-            router.replace("/"); // Use replace to avoid back navigation
+            router.replace("/");
           },
         },
       ]);

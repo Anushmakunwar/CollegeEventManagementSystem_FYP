@@ -1,5 +1,5 @@
-import { Prisma, PrismaClient } from "@prisma/client"; // Importing PrismaClient
-import { AppError } from "../../middleware/errorHandler"; // AppError is assumed to be a custom error class
+import { Prisma, PrismaClient } from "@prisma/client"; 
+import { AppError } from "../../middleware/errorHandler";
 import { getReturn } from "../../types/type";
 import { generateQR } from "../../utils/qrcode";
 import { sendEventRegistrationEmail } from "../../services/event-register-male";
@@ -32,16 +32,15 @@ const create = async (
       //@ts-ignore
 
       rest.school = {
-        connect: { id: schoolId }, // Connect to the existing School by ID
+        connect: { id: schoolId },
       };
       rest.faculty = {
-        connect: { id: facultyId }, // Connect to the existing Faculty by ID
+        connect: { id: facultyId }, 
       };
     }
     rest.creator = {
-      connect: { id: userId }, // Connect to the existing User by ID
+      connect: { id: userId }, 
     };
-    console.log(rest, "===========");
     rest.date = rest.startTime;
     const result = await prisma.event.create({
       data: rest,
@@ -225,7 +224,6 @@ const listEventForSchoolUser = async (
 ): Promise<getReturn> => {
   try {
     const now = new Date();
-    // console.log(schoolId, facultyId, roles, limit, page, search, "===");
     const whereCondition: any = { schoolId };
     // Role-based filtering
     if (roles?.includes("SCHOOLADMIN")) {
@@ -240,7 +238,6 @@ const listEventForSchoolUser = async (
       ];
     }
 
-    // Add search filter if provided
     if (search?.name) {
       whereCondition.name = {
         contains: search.name,
@@ -250,16 +247,15 @@ const listEventForSchoolUser = async (
     // Event filtering logic
     if (filter?.filter === "today") {
       whereCondition.AND = [
-        { startTime: { lte: now } }, // Event started
-        { endTime: { gte: now } }, // Event not yet ended
+        { startTime: { lte: now } },
+        { endTime: { gte: now } },
       ];
     } else if (filter?.filter === "upcoming") {
-      whereCondition.startTime = { gt: now }; // Starts in the future
+      whereCondition.startTime = { gt: now };
     } else if (filter?.filter === "previous") {
-      whereCondition.endTime = { lt: now }; // Already ended
+      whereCondition.endTime = { lt: now };
     }
-    console.log(whereCondition, "============");
-    // Fetch total count
+   
     const total = await prisma.event.count({ where: whereCondition });
 
     // Fetch paginated data
@@ -346,12 +342,9 @@ const remove = async (id: string) => {
 };
 const registerEvent = async (eventId: string, userId: string) => {
   try {
-    console.log(userId, "==========================");
     const event = await prisma.event.findUnique({ where: { id: eventId } });
     if (!event) throw new AppError("Event not found", 404);
-    // console.log(event, "=");
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    // console.log(user, "==");
     if (!user) throw new AppError("User not found", 404);
     const isRegistered = await prisma.attendance.findFirst({
       where: {
@@ -370,7 +363,6 @@ const registerEvent = async (eventId: string, userId: string) => {
         },
       },
     });
-    // console.log(result, "-========");
     if (!result) throw new AppError("Error registering event", 500);
     const qr = await generateQR(userId, eventId);
     await sendEventRegistrationEmail(user.email, event.name, qr as any);

@@ -161,10 +161,9 @@ const login = async (
     const accessToken = generateJWT(payload);
     const refreshToken = generateRefreshToken(payload);
 
-    // Store Refresh Token in the database (you may want to hash it)
     await prisma.token.create({
       data: {
-        refreshToken, // Consider hashing before storing
+        refreshToken,
         userId: user.id,
         expiresAt: new Date(
           Date.now() + Number(process.env.JWT_REFRESH_DURATION_MS),
@@ -174,7 +173,7 @@ const login = async (
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Ensure it's secure in production
+      secure: process.env.NODE_ENV === "production", 
       sameSite: "strict",
       maxAge: +(process.env.JWT_REFRESH_DURATION_MS || 0) as number,
     });
