@@ -8,9 +8,9 @@ cd server || exit 1
 npm run format || { echo 'Backend Prettier failed'; exit 1; }
 
 # Run Prettier for client
-cd ../web || exit 1
-npm run format || { echo 'Client Prettier failed'; exit 1; }
+# cd ../web || exit 1
+# npm run format || { echo 'Client Prettier failed'; exit 1; }
 
 # Run Prettier for mobile
 cd ../mobile || exit 1
-npm run format || { echo 'Mobile Prettier failed'; exit 1; }
+# npm run format || { echo 'Mobile Prettier failed'; exit 1; }

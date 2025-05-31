@@ -28,9 +28,9 @@ server/dist/
 web/.next/
 mobile/.expo/
 mobile/build/
-
+web/.next/
 # Next.js
-.next/
+web/.next/
 out/
 
 # Expo / React Native
