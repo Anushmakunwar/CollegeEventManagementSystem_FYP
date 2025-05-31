@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function newEvent() {
   type EventForm = z.infer<typeof FormSchema>;
@@ -17,9 +18,10 @@ export default function newEvent() {
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm<EventForm>({
-    // resolver: zodResolver(FormSchema),
+    resolver: zodResolver(FormSchema),
   });
 
   const {
@@ -42,9 +44,12 @@ export default function newEvent() {
 
   useEffect(() => {
     if (isSuccess) {
-      router.push("/schooladmin/events");
+      toast.success("Event created successfully!");
+      reset();
+    } else if (isError) {
+      toast.error(error?.response?.data?.message || "An error occurred");
     }
-  }, [data]);
+  }, [isSuccess, isError]);
 
   const onSubmit = (data: any) => {
     data.guestNames = data.guestNames.map((el: any) => el.name);
@@ -55,11 +60,16 @@ export default function newEvent() {
 
   return (
     <div className="px-6 py-10 w-full mx-auto">
-      <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">Create Event</h2>
+      <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">
+        Create Event
+      </h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Event Name */}
         <div>
-          <label htmlFor="name" className="block text-lg font-semibold text-gray-700 mb-2">
+          <label
+            htmlFor="name"
+            className="block text-lg font-semibold text-gray-700 mb-2"
+          >
             Event Name
           </label>
           <input
@@ -69,12 +79,17 @@ export default function newEvent() {
             placeholder="Basic IT Literacy"
             className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
           />
-          {errors.name && <p className="text-red-600 mt-1">{errors.name.message}</p>}
+          {errors.name && (
+            <p className="text-red-600 mt-1">{errors.name.message}</p>
+          )}
         </div>
 
         {/* Event Description */}
         <div>
-          <label htmlFor="description" className="block text-lg font-semibold text-gray-700 mb-2">
+          <label
+            htmlFor="description"
+            className="block text-lg font-semibold text-gray-700 mb-2"
+          >
             Event Description
           </label>
           <textarea
@@ -83,12 +98,16 @@ export default function newEvent() {
             id="description"
             placeholder="Your event description here"
           ></textarea>
-          {errors.description && <p className="text-red-600 mt-1">{errors.description.message}</p>}
+          {errors.description && (
+            <p className="text-red-600 mt-1">{errors.description.message}</p>
+          )}
         </div>
 
         {/* Hosts */}
         <div>
-          <label className="block text-lg font-semibold text-gray-700 mb-2">Hosts</label>
+          <label className="block text-lg font-semibold text-gray-700 mb-2">
+            Hosts
+          </label>
           {hosts.map((host, index) => (
             <div key={host.id} className="flex items-center space-x-2 mb-3">
               <input
@@ -113,12 +132,16 @@ export default function newEvent() {
           >
             Add Host
           </button>
-          {errors.hostNames && <p className="text-red-600 mt-1">{errors.hostNames.message}</p>}
+          {errors.hostNames && (
+            <p className="text-red-600 mt-1">{errors.hostNames.message}</p>
+          )}
         </div>
 
         {/* Guests */}
         <div>
-          <label className="block text-lg font-semibold text-gray-700 mb-2">Guests</label>
+          <label className="block text-lg font-semibold text-gray-700 mb-2">
+            Guests
+          </label>
           {guests.map((guest, index) => (
             <div key={guest.id} className="flex items-center space-x-2 mb-3">
               <input
@@ -143,12 +166,17 @@ export default function newEvent() {
           >
             Add Guest
           </button>
-          {errors.guestNames && <p className="text-red-600 mt-1">{errors.guestNames.message}</p>}
+          {errors.guestNames && (
+            <p className="text-red-600 mt-1">{errors.guestNames.message}</p>
+          )}
         </div>
 
         {/* Venue */}
         <div>
-          <label htmlFor="venue" className="block text-lg font-semibold text-gray-700 mb-2">
+          <label
+            htmlFor="venue"
+            className="block text-lg font-semibold text-gray-700 mb-2"
+          >
             Venue
           </label>
           <input
@@ -158,7 +186,9 @@ export default function newEvent() {
             placeholder="Event Venue"
             className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
           />
-          {errors.venue && <p className="text-red-600 mt-1">{errors.venue.message}</p>}
+          {errors.venue && (
+            <p className="text-red-600 mt-1">{errors.venue.message}</p>
+          )}
         </div>
 
         {/* Registration Deadline */}
@@ -176,13 +206,18 @@ export default function newEvent() {
             className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
           />
           {errors.registrationDeadline && (
-            <p className="text-red-600 mt-1">{errors.registrationDeadline.message}</p>
+            <p className="text-red-600 mt-1">
+              {errors.registrationDeadline.message}
+            </p>
           )}
         </div>
 
         {/* Event Date-Time */}
         <div>
-          <label htmlFor="startTime" className="block text-lg font-semibold text-gray-700 mb-2">
+          <label
+            htmlFor="startTime"
+            className="block text-lg font-semibold text-gray-700 mb-2"
+          >
             Event Date-Time
           </label>
           <input
@@ -191,12 +226,17 @@ export default function newEvent() {
             type="datetime-local"
             className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
           />
-          {errors.startTime && <p className="text-red-600 mt-1">{errors.startTime.message}</p>}
+          {errors.startTime && (
+            <p className="text-red-600 mt-1">{errors.startTime.message}</p>
+          )}
         </div>
 
         {/* Event End Date-Time */}
         <div>
-          <label htmlFor="endTime" className="block text-lg font-semibold text-gray-700 mb-2">
+          <label
+            htmlFor="endTime"
+            className="block text-lg font-semibold text-gray-700 mb-2"
+          >
             Event End Date-Time
           </label>
           <input
@@ -205,7 +245,9 @@ export default function newEvent() {
             type="datetime-local"
             className="w-full h-12 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200"
           />
-          {errors.endTime && <p className="text-red-600 mt-1">{errors.endTime.message}</p>}
+          {errors.endTime && (
+            <p className="text-red-600 mt-1">{errors.endTime.message}</p>
+          )}
         </div>
 
         {/* Submit Button */}
@@ -218,6 +260,7 @@ export default function newEvent() {
           </button>
         </div>
       </form>
+      <ToastContainer />
     </div>
   );
 }

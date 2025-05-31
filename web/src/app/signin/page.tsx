@@ -7,7 +7,7 @@ import { setToken } from "@/utils/session";
 import Image from "next/image";
 import usePost from "@/hooks/usePost";
 import { UserStore } from "@/store/UserStore";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { URLS } from "@/constants";
 import { FormSchema } from "@/validator/login.schema";
 // import Loader from "@/components/Loader";
@@ -21,17 +21,20 @@ export default function login() {
     (state) => state,
   );
 
-  if (isLoggedIn) {
-    if (roles.includes("SUPERADMIN")) {
-      router.push("/superadmin");
-    } else if (roles.includes("SCHOOLADMIN")) {
-      router.push("/schooladmin");
-    } else if (roles.includes("STUDENT")) {
-      router.push("/student");
-    } else if (roles.includes("ADMIN")) {
-      router.push("/admin");
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+  useEffect(() => {
+    if (isLoggedIn) {
+      if (roles.includes("SUPERADMIN")) {
+        router.push("/superadmin");
+      } else if (roles.includes("SCHOOLADMIN")) {
+        router.push("/schooladmin");
+      } else if (roles.includes("STUDENT")) {
+        router.push("/student");
+      } else if (roles.includes("ADMIN")) {
+        router.push("/admin");
+      }
     }
-  }
+  }, [isLoggedIn, roles]);
 
   const {
     register,
@@ -46,18 +49,24 @@ export default function login() {
   });
 
   useEffect(() => {
+    //   window.location.reload();
+
     if (isSuccess) {
       setToken(data.data.accessToken);
-
       setIsLoggedIn(data.data);
     }
-  }, [data]);
+    if (error) {
+      setErrMsg(error.response?.data?.message || "Something went wrong");
+    }
+  }, [isSuccess, error, data]);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     postMutation({ url: URLS.AUTH + "/login", data });
   }
 
-  // window.location.reload();
+  // useEffect(() => {
+  //   window.location.reload();
+  // }, []);
 
   if (isPending) {
     return (
@@ -102,7 +111,7 @@ export default function login() {
                   {...register("email")}
                   id="email"
                   type="email"
-                  placeholder="asimneupane11@gmail.com"
+                  placeholder="example@gmail.com"
                   className="w-full h-12 px-4 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-300"
                 />
                 {errors.email && (
@@ -140,10 +149,27 @@ export default function login() {
                 >
                   Sign In
                 </button>
+                {errMsg && (
+                  <div className=" pt-3 text-red-500 text-lg flex justify-between">
+                    {errMsg}
+                    <button onClick={() => setErrMsg(null)}>X</button>
+                  </div>
+                )}{" "}
               </div>
             </form>
 
- 
+            {/* <div className="my-6 flex items-center justify-between">
+              <span className="w-10/12 border-t"></span>
+              <span className="text-sm px-2 text-gray-500">Or</span>
+              <span className="w-10/12 border-t"></span>
+            </div> */}
+            {/* 
+            <div className="flex justify-around text-sm">
+              <span>New to the App?</span>
+              <Link href="#" className="text-blue-500 font-bold">
+                Register
+              </Link>
+            </div> */}
           </div>
         </div>
       </div>

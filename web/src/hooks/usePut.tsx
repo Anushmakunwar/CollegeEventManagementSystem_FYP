@@ -4,7 +4,7 @@ import { useState } from "react";
 
 const usePut = (qkey: string) => {
   const queryClient = useQueryClient();
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>();
   const [success, setSuccess] = useState(false);
 
   const {
@@ -24,7 +24,7 @@ const usePut = (qkey: string) => {
       setSuccess(false);
       setError((error as any).response.data.message);
       setTimeout(() => {
-        setError(false);
+        setError(null);
       }, 2000);
     },
     onSuccess: async () => {

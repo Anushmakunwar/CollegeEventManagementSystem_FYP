@@ -17,7 +17,7 @@ function Profile() {
         Saira Willams
       </p>
       <p className="text-xs text-center text-[#808080] mb-8">
-        3279112@mbmc.edu.np
+        example@gmail.com
       </p>
       <div className="text-xs text-[#808080] flex justify-evenly">
         <div>

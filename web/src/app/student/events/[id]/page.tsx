@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { URLS } from "@/constants";
 import useGet from "@/hooks/useGet";
@@ -18,7 +18,8 @@ export default function EventDetails() {
   const [errorMessage, setErrorMessage] = useState(null);
 
   const { isLoading, data } = useGet("eventregister", `${URLS.EVENT}/`, id);
-  const { postMutation, isPending } = usePost("eventregister");
+  const { postMutation, isError, isSuccess, error, success, isPending } =
+    usePost("eventregister");
 
   const onSubmit = async () => {
     try {
@@ -30,6 +31,13 @@ export default function EventDetails() {
       console.log("errrrrrr");
     }
   };
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Event registered successfully!");
+    } else if (isError) {
+      toast.error(error?.response?.data?.message || "An error occurred");
+    }
+  }, [isSuccess, isError]);
 
   if (isLoading) {
     return (
@@ -144,6 +152,7 @@ export default function EventDetails() {
                 )}
               </Button>
             )}
+            <ToastContainer />
           </CardContent>
         </Card>
       </motion.div>

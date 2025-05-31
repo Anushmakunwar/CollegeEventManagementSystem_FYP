@@ -6,40 +6,40 @@ export const FormSchema = z
     description: z.string().min(1, { message: "Description cannot be empty." }),
     hostNames: z
       .array(
-        z.object({
-          name: z.string().min(1, { message: "Host name cannot be empty." }),
-        }),
+        z
+          .object({
+            name: z.string().min(1, { message: "Host name cannot be empty." }),
+          })
+          .optional(),
       )
-      .nonempty({ message: "At least one host must be added." }),
+      .optional(),
     guestNames: z
       .array(
         z.object({
           name: z.string().min(1, { message: "Guest name cannot be empty." }),
         }),
       )
-      .nonempty({ message: "At least one guest must be added." }),
+      .optional(),
     venue: z.string().min(1, { message: "Venue must be specified." }),
-    registrationDeadline: z
-      .string()
-      .refine((date) => !isNaN(Date.parse(date)), {
-        message: "Invalid date for registration deadline.",
-      }),
-    startTime: z.string().refine((date) => !isNaN(Date.parse(date)), {
-      message: "Invalid event date.",
+    registrationDeadline: z.coerce.date({
+      required_error: "Registration deadline is required",
     }),
-    endTime: z.string().refine((date) => !isNaN(Date.parse(date)), {
-      message: "Invalid end Time.",
+    startTime: z.coerce.date({
+      required_error: "Event start time is required",
+    }),
+    endTime: z.coerce.date({
+      required_error: "Event end time is required",
     }),
   })
-  .refine((data) => Date.parse(data.startTime) < Date.parse(data.endTime), {
-    message: "Event date must be before event end.",
-    path: ["startTime"], // Attach error to `eventDate` field.
+  .refine((data) => data.registrationDeadline > new Date(), {
+    path: ["registrationDeadline"],
+    message: "Registration deadline must be in the future",
   })
-  .refine(
-    (data) =>
-      Date.parse(data.startTime) > Date.parse(data.registrationDeadline),
-    {
-      message: "Event date must be after the registration deadline.",
-      path: ["startTime"], // Attach error to `eventDate` field.
-    },
-  );
+  .refine((data) => data.startTime > data.registrationDeadline, {
+    path: ["startTime"],
+    message: "Event start time must be after registration deadline",
+  })
+  .refine((data) => data.endTime > data.startTime, {
+    path: ["endTime"],
+    message: "Event end time must be after event start time",
+  });

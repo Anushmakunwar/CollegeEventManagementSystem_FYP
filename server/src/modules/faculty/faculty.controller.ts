@@ -10,6 +10,14 @@ const create = async (
 ): Promise<Prisma.FacultyCreateInput | null> => {
   try {
     const { ...rest } = payload;
+    const isAlready = await prisma.faculty.findFirst({
+      where: {
+        name: rest.name,
+      },
+    });
+    if (isAlready) {
+      throw new AppError("Faculty name already used", 500);
+    }
     const result = await prisma.faculty.create({
       data: rest,
     });

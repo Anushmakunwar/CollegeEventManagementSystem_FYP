@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import usePost from "@/hooks/usePost";
 import { URLS } from "@/constants";
+import { useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function CreateUser() {
   type User = z.infer<typeof FormSchema>;
@@ -23,8 +25,15 @@ export default function CreateUser() {
 
   const onSubmit = async (data: User) => {
     postMutation({ url: URLS.USERS, data });
-    reset();
+    reset(); // Reset form after submission
   };
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Student created successfully");
+    } else if (isError) {
+      toast.error(error?.response?.data?.message || "An error occurred");
+    }
+  }, [isSuccess, isError]);
 
   return (
     <div className="max-w-[20rem] w-full md:max-w-full mx-auto bg-white p-8 rounded-lg shadow-lg">
@@ -32,7 +41,10 @@ export default function CreateUser() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Full Name */}
         <div>
-          <label htmlFor="fullName" className="block text-lg font-semibold mb-2">
+          <label
+            htmlFor="fullName"
+            className="block text-lg font-semibold mb-2"
+          >
             Full Name
           </label>
           <input
@@ -46,7 +58,6 @@ export default function CreateUser() {
             <p className="text-red-500 mt-1">{errors.fullName.message}</p>
           )}
         </div>
-
         {/* Email */}
         <div>
           <label htmlFor="email" className="block text-lg font-semibold mb-2">
@@ -63,10 +74,12 @@ export default function CreateUser() {
             <p className="text-red-500 mt-1">{errors.email.message}</p>
           )}
         </div>
-
         {/* Password */}
         <div>
-          <label htmlFor="password" className="block text-lg font-semibold mb-2">
+          <label
+            htmlFor="password"
+            className="block text-lg font-semibold mb-2"
+          >
             Password
           </label>
           <input
@@ -80,9 +93,7 @@ export default function CreateUser() {
             <p className="text-red-500 mt-1">{errors.password.message}</p>
           )}
         </div>
-
         {/* Role Selection */}
-     
         {/* Submit Button */}
         <button
           type="submit"
@@ -91,14 +102,8 @@ export default function CreateUser() {
         >
           {isPending || isSubmitting ? "Creating..." : "Create User"}
         </button>
-
         {/* Success & Error Messages */}
-        {isSuccess && (
-          <p className="text-green-500 text-center">User created successfully!</p>
-        )}
-        {isError && (
-          <p className="text-red-500 text-center">{error?.message || "An error occurred"}</p>
-        )}
+        <ToastContainer />
       </form>
     </div>
   );

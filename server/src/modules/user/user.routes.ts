@@ -55,6 +55,35 @@ router.get(
   },
 );
 router.get(
+  "/list/student",
+  secureAPI(["SCHOOLADMIN", "ADMIN"]),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { page, limit, search } = req.query;
+      const parsedPage = page ? parseInt(page as string, 10) : undefined;
+      const parsedLimit = limit ? parseInt(limit as string, 10) : undefined;
+
+      const searchParams: { schoolId?: string; facultyId?: string } = {};
+
+      //@ts-ignore
+      req.schoolId && (searchParams.schoolId = req.schoolId);
+      //@ts-ignore
+      req.facultyId && (searchParams.facultyId = req.facultyId);
+
+      const result = await controller.getStudents(
+        parsedLimit,
+        parsedPage,
+        searchParams,
+      );
+      respond(res, 200, "User fetched successfully", {
+        result,
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+router.get(
   "/std-profile",
   secureAPI(["STUDENT"]),
   async (req: Request, res: Response, next: NextFunction) => {

@@ -34,7 +34,7 @@ export default function AllEvents() {
         />
         <div className="absolute inset-0  flex flex-col top-[45%] items-center justify-center text-center">
           <h1 className="text-5xl md:text-6xl font-bold text-white drop-shadow-lg">
-            One Decentralized Event Management
+            One Centralized Event Management
           </h1>
           <h2 className="text-3xl md:text-4xl text-white mt-4 drop-shadow-lg">
             Track Your Event History

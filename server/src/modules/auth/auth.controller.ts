@@ -173,7 +173,7 @@ const login = async (
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", 
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: +(process.env.JWT_REFRESH_DURATION_MS || 0) as number,
     });

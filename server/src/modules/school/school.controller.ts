@@ -1,11 +1,19 @@
-import { Prisma, PrismaClient } from "@prisma/client"; 
-import { AppError } from "../../middleware/errorHandler"; 
+import { Prisma, PrismaClient } from "@prisma/client"; // Importing PrismaClient
+import { AppError } from "../../middleware/errorHandler"; // AppError is assumed to be a custom error class
 import { getReturn } from "../../types/type";
 
 const prisma = new PrismaClient();
 
 const create = async (payload: Prisma.SchoolCreateInput) => {
   try {
+    const isAlreadySchool = await prisma.school.findUnique({
+      where: {
+        suffix: payload.suffix,
+      },
+    });
+    if (isAlreadySchool) {
+      throw new AppError(`${payload.suffix} is already in used!`, 409);
+    }
     const result = await prisma.school.create({
       data: payload,
     });
@@ -84,12 +92,12 @@ const getById = async (id: string) => {
 const assignSchoolAdmin = async (id: string, adminId: string) => {
   try {
     const school = await prisma.school.findUnique({ where: { id } });
-
+    console.log(school, "school");
+    if (!school) throw new AppError("School not found", 404);
     if (school?.adminId) {
       const oldAdmin = await prisma.user.findUnique({
         where: { id: school?.adminId },
       });
-
       await prisma.user.update({
         where: {
           id: oldAdmin?.id,
@@ -99,8 +107,31 @@ const assignSchoolAdmin = async (id: string, adminId: string) => {
         },
       });
     }
-    if (!school) throw new AppError("School not found", 404);
+    const isThatAdminUseInOtherSchool = await prisma.school.findFirst({
+      where: {
+        adminId,
+      },
+    });
+    if (isThatAdminUseInOtherSchool) {
+      await prisma.user.update({
+        where: {
+          //@ts-ignore
+          id: isThatAdminUseInOtherSchool.adminId,
+        },
 
+        data: {
+          schoolId: null,
+        },
+      });
+      await prisma.school.update({
+        where: {
+          adminId,
+        },
+        data: {
+          adminId: null,
+        },
+      });
+    }
     const result = await prisma.school.update({
       where: { id },
       data: {

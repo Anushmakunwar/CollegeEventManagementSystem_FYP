@@ -5,5 +5,5 @@ export const FormSchema = z.object({
     .string()
     .min(1, { message: "This field has to be filled." })
     .email("This is not a valid email."),
-  password: z.string().min(6, { message: "Too short" }),
+  password: z.string().min(6, { message: "Password required" }),
 });

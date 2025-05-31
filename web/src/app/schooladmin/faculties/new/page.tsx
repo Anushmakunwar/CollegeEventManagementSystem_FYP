@@ -1,28 +1,42 @@
 "use client";
 import { URLS } from "@/constants";
 import usePost from "@/hooks/usePost";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { ToastContainer, toast } from "react-toastify";
 
 type FacultyType = {};
 
 export default function page() {
-  const { postMutation, isSuccess, data, isPending } = usePost("Faculty_API");
+  const { postMutation, isSuccess, data, error, isPending, isError } =
+    usePost("Faculty_API");
+  const [errMsg, setErrMsg] = useState<string | null>(null);
 
   const {
     register,
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<{ name: string }>();
 
   const onSubmit = (data: any) => {
     postMutation({ url: URLS.FACULTY, data });
   };
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Faculty created successfully!");
+      reset();
+    } else if (isError) {
+      toast.error(error?.response?.data?.message || "An error occurred");
+    }
+  }, [isSuccess, isError]);
 
   return (
     <div className="w-full mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-3xl font-semibold text-center mb-6">Create Faculty</h2>
+      <h2 className="text-3xl font-semibold text-center mb-6">
+        Create Faculty
+      </h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
           <label
@@ -52,9 +66,7 @@ export default function page() {
           </button>
         </div>
       </form>
-      {isSuccess && (
-        <p className="text-green-500 text-center mt-4">Faculty created successfully!</p>
-      )}
+      <ToastContainer />
     </div>
   );
 }

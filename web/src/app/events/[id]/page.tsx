@@ -22,7 +22,7 @@ export default function page() {
         <p>
           <span className="text-xs font-bold leading-5">Venue:</span>{" "}
           <span className="text-xs leading-5">
-            Madan Bhandari Recreational Hall
+            Kumari Hall
           </span>
         </p>
         <p>

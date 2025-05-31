@@ -3,6 +3,8 @@
 import { UserStore } from "@/store/UserStore";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+// import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 const useLogout = () => {
@@ -25,7 +27,7 @@ const useLogout = () => {
         // Wait for state updates to finish before navigation
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        router.push("/");
+        router.push("/signin");
       } catch (error) {
         console.error("Error clearing session data:", error);
       }

@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import usePost from "@/hooks/usePost";
 import { URLS } from "@/constants";
+import { useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function CreateUser() {
   type User = z.infer<typeof FormSchema>;
@@ -23,8 +25,15 @@ export default function CreateUser() {
 
   const onSubmit = async (data: User) => {
     postMutation({ url: URLS.USERS, data });
-    reset(); 
+    reset(); // Reset form after submission
   };
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("User created successfully!");
+    } else if (isError) {
+      toast.error(error?.response?.data?.message || "An error occurred");
+    }
+  }, [isSuccess, isError]);
 
   return (
     <div className="max-w-[20rem] w-full md:max-w-full mx-auto bg-white p-8 rounded-lg shadow-lg">
@@ -32,7 +41,10 @@ export default function CreateUser() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Full Name */}
         <div>
-          <label htmlFor="fullName" className="block text-lg font-semibold mb-2">
+          <label
+            htmlFor="fullName"
+            className="block text-lg font-semibold mb-2"
+          >
             Full Name
           </label>
           <input
@@ -66,7 +78,10 @@ export default function CreateUser() {
 
         {/* Password */}
         <div>
-          <label htmlFor="password" className="block text-lg font-semibold mb-2">
+          <label
+            htmlFor="password"
+            className="block text-lg font-semibold mb-2"
+          >
             Password
           </label>
           <input
@@ -92,9 +107,11 @@ export default function CreateUser() {
             className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             <option value="SCHOOLADMIN">SCHOOL ADMIN</option>
-            <option value="ADMIN">ADMIN</option>
+            {/* <option value="ADMIN">ADMIN</option> */}
           </select>
-          {errors.roles && <p className="text-red-500 mt-1">{errors.roles.message}</p>}
+          {errors.roles && (
+            <p className="text-red-500 mt-1">{errors.roles.message}</p>
+          )}
         </div>
 
         {/* Submit Button */}
@@ -105,14 +122,7 @@ export default function CreateUser() {
         >
           {isPending || isSubmitting ? "Creating..." : "Create User"}
         </button>
-
-        {/* Success & Error Messages */}
-        {isSuccess && (
-          <p className="text-green-500 text-center">User created successfully!</p>
-        )}
-        {isError && (
-          <p className="text-red-500 text-center">{error?.message || "An error occurred"}</p>
-        )}
+        <ToastContainer />
       </form>
     </div>
   );

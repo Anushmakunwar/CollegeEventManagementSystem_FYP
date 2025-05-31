@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ankit-adhikari.mobile"
+      "bundleIdentifier": "com.example.mobile"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,7 +26,7 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.ankit_adhikari.mobile"
+      "package": "com.example.mobile"
     },
     "web": {
       "bundler": "metro",

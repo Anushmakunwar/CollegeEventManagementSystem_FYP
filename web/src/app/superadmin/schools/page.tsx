@@ -6,6 +6,7 @@ import usePut from "@/hooks/usePut";
 import { URLS } from "@/constants";
 import Modal from "../_components/modal/page";
 import { FaArrowRightLong } from "react-icons/fa6";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function AllSchools() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,7 +26,13 @@ export default function AllSchools() {
     10,
   );
 
-  const { putMutation, success: assignedNewSchoolAdmin } = usePut("SCHOOL_API");
+  const {
+    putMutation,
+    success: assignedNewSchoolAdmin,
+    isSuccess,
+    isError,
+    error,
+  } = usePut("SCHOOL_API");
 
   const handleAssignClick = (schoolId: string) => {
     setSelectedSchoolId(schoolId);
@@ -40,6 +47,13 @@ export default function AllSchools() {
       });
     }
   };
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Admin assign successfully");
+    } else if (isError) {
+      toast.error(error || "An error occurred");
+    }
+  }, [isSuccess, isError]);
 
   const totalSchools = schoolData?.data?.total || 0;
   const totalPages = Math.ceil(totalSchools / 10);
@@ -68,11 +82,7 @@ export default function AllSchools() {
         </div>
       )}
 
-      {assignedNewSchoolAdmin && (
-        <p className="text-green-500 mt-4 text-center">
-          Admin changed successfully!
-        </p>
-      )}
+      <ToastContainer />
 
       <div className="flex justify-center items-center gap-4 mt-6">
         <button

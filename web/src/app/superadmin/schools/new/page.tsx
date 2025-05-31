@@ -5,6 +5,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import usePost from "@/hooks/usePost";
 import { URLS } from "@/constants";
+import { useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import { redirect } from "next/navigation";
 
 export default function CreateSchool() {
   type SchoolForm = z.infer<typeof FormSchema>;
@@ -19,12 +22,21 @@ export default function CreateSchool() {
   });
 
   const { postMutation, error, isError, isPending, isSuccess } =
-    usePost("postSchool");
+    usePost("SCHOOL_API");
 
   const onSubmit = async (data: SchoolForm) => {
     postMutation({ url: URLS.SCHOOL, data });
-    reset(); 
+    reset(); // Reset form after submission
   };
+  useEffect(() => {
+    console.log(isSuccess);
+    if (isSuccess) {
+      toast.success("School create Successfully");
+    } else if (isError) {
+      console.log(error, "eeeeeeeeeeeeeeeeeeeeee");
+      toast.error(error?.response?.data?.message || "An error occurred");
+    }
+  }, [isSuccess, isError]);
 
   return (
     <div className="max-w-[20rem] w-full md:max-w-full mx-auto bg-white p-8 rounded-lg shadow-lg">
@@ -39,7 +51,7 @@ export default function CreateSchool() {
             {...register("name")}
             id="name"
             type="text"
-            placeholder="Islington College "
+            placeholder="Islington College"
             className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           {errors.name && (
@@ -76,7 +88,7 @@ export default function CreateSchool() {
             {...register("suffix")}
             id="suffix"
             type="text"
-            placeholder="mbmc.edu.np"
+            placeholder="gmail.com"
             className="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           {errors.suffix && (
@@ -92,18 +104,7 @@ export default function CreateSchool() {
         >
           {isPending || isSubmitting ? "Creating..." : "Create School"}
         </button>
-
-        {/* Success & Error Messages */}
-        {isSuccess && (
-          <p className="text-green-500 text-center">
-            College created successfully!
-          </p>
-        )}
-        {isError && (
-          <p className="text-red-500 text-center">
-            {error?.message || "An error occurred"}
-          </p>
-        )}
+        <ToastContainer />
       </form>
     </div>
   );

@@ -7,12 +7,14 @@ import Link from "next/link";
 import { FaArrowRightLong } from "react-icons/fa6";
 import Modal from "../../_components/modal/page";
 import usePut from "@/hooks/usePut";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFacultyId, setSelectedFacultyId] = useState<string | null>(
     null,
   );
+  // const [admins, setSchools] = useState({});
   const [admins, setAdmins] = useState({});
   const [page, setPage] = useState(1);
 
@@ -38,7 +40,19 @@ export default function page() {
     1,
     10,
   );
-  const handleSelectItem = (id: string | number) => { 
+
+  //   const { data, isError, isLoading } = useList(
+  //     "user",
+  //     `${URLS.USERS}/list?search=SCHOOLADMIN`,
+  //     1,
+  //     10,
+  //   );
+
+  const handleSelectItem = (id: string | number) => {
+    // setSelectedItemId(id);
+    console.log("school adminId", id);
+    // console.log("schoolID", selectedSchoolId);
+    // now do post req on backend with this id
     putMutation({
       urls: `${URLS.USERS}/${id}`,
       data: { facultyId: selectedFacultyId },
@@ -54,6 +68,14 @@ export default function page() {
       setAdmins(data);
     }
   }, [data, setAdmins]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Faculty assign successfully!");
+    } else if (assignFacultyAdminError) {
+      toast.error(error || "An error occurred");
+    }
+  }, [isSuccess, assignFacultyAdminError]);
 
   const totalFaculty = faculties?.data?.total || 0;
   const totalPages = Math.ceil(totalFaculty / 10);
@@ -81,12 +103,26 @@ export default function page() {
             </div>
           </div>
         ))}
+        <ToastContainer />
+
+        {/* <div className="border-black border-2 rounded-lg bg-[#D9D9D9]">
+          <Link
+            className="flex justify-between items-center px-3 py-1 leading-7"
+            href={"#"}
+          >
+            Event 1 <FaArrowRightLong />
+          </Link>
+        </div>
+        <div className="border-black border-2 rounded-lg bg-[#D9D9D9]">
+          <Link
+            className="flex justify-between items-center px-3 py-1 leading-7"
+            href={"#"}
+          >
+            Event 1 <FaArrowRightLong />
+          </Link>
+        </div> */}
       </div>
-      <div>
-        {assignedNewFaultyAdmin && (
-          <p className="text-green-500">Admin changed successfully!</p>
-        )}
-      </div>
+   
       <div className="flex justify-center items-center gap-4 mt-6">
         <button
           className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"

@@ -34,16 +34,22 @@ const links = [
     menu: [
       {
         key: 3.1,
-        name: "Add Student",
-        path: "/admin/students/add",
+        name: "All Student",
+        path: "/admin/students",
         icon: <IoSchool />,
       },
       {
         key: 3.2,
-        name: "Verify Student",
-        path: "/admin/students/verify",
+        name: "Add Student",
+        path: "/admin/students/add",
         icon: <IoSchool />,
       },
+      // {
+      //   key: 3.3,
+      //   name: "Verify Student",
+      //   path: "/admin/students/verify",
+      //   icon: <IoSchool />,
+      // },
     ],
   },
 

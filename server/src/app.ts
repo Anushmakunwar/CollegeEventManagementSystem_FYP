@@ -6,12 +6,8 @@ import { ErrorHandler } from "./middleware/errorHandler";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-const corsOptions = {
-  origin: "http://localhost:3000", // Replace with your frontend's URL
-  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
-  credentials: true, // Allow cookies to be sent
-};
-app.use(cors(corsOptions)); // Apply CORS middleware with options
+
+app.use(cors({ credentials: true })); // Apply CORS middleware with options
 
 app.use(cookieParser());
 

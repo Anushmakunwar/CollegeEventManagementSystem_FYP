@@ -8,6 +8,7 @@ import { FaArrowRightLong } from "react-icons/fa6";
 import Modal from "../_components/modal/page";
 import usePut from "@/hooks/usePut";
 import { UserStore } from "@/store/UserStore";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function AllSchools() {
   const { schoolSuffix } = UserStore((state) => state);
@@ -50,6 +51,13 @@ export default function AllSchools() {
       data: { facultyId: selectedFacultyId },
     });
   };
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Faculty assign successfully!");
+    } else if (assignFacultyAdminError) {
+      toast.error(error || "An error occurred");
+    }
+  }, [isSuccess, assignFacultyAdminError]);
 
   const handleAssignClick = (facultyId: string) => {
     setSelectedFacultyId(facultyId);
@@ -83,13 +91,7 @@ export default function AllSchools() {
             </div>
           ))}
       </div>
-
-      {/* Admin assignment success message */}
-      {assignedNewFaultyAdmin && (
-        <p className="text-green-500 mt-4 text-center">
-          Admin changed successfully!
-        </p>
-      )}
+      <ToastContainer />
 
       {/* Pagination Controls */}
       <div className="flex justify-center items-center gap-4 mt-6">

@@ -1,4 +1,4 @@
-export const SERVER_URL: string = "http://localhost:3333";
+export const SERVER_URL: any = process.env.NEXT_PUBLIC_SERVER_URL;
 
 const version: string = "/api/v1";
 export const URLS = {

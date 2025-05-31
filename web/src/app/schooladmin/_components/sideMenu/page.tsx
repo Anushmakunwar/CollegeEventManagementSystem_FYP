@@ -66,6 +66,12 @@ const links = [
       },
       {
         key: 4.2,
+        name: "All Students",
+        path: "/schooladmin/students",
+        icon: <FaUsers />,
+      },
+      {
+        key: 4.3,
         name: "Create Admin",
         path: "/schooladmin/users/new",
         icon: <FaUser />,

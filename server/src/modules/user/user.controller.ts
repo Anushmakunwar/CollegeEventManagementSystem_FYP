@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client"; // Importing PrismaClient
 import { comparePassword, hashPassword } from "../../utils/bcrypt";
 import { mailer } from "../../services/mailer";
 import { getReturn } from "../../types/type";
@@ -33,7 +33,6 @@ const createUser = async (
     rest.isActive = true;
 
     let school;
-
     if (schoolId) {
       school = await prisma.school.findUnique({
         where: {
@@ -41,12 +40,9 @@ const createUser = async (
         },
       });
       if (!rest.email.endsWith(school?.suffix)) {
-        throw new Error("Invalid email suffix");
+        throw new AppError("Invalid email suffix", 500);
       }
     }
-
-    console.log("checking the initiater role", roles);
-
     switch (roles[0]) {
       case "SUPERADMIN":
         rest.roles = inputRoles || [];
@@ -57,7 +53,7 @@ const createUser = async (
         break;
       case "SCHOOLADMIN":
         rest.roles = ["ADMIN"];
-        rest.schoolId = schoolId; 
+        rest.schoolId = schoolId; // No school assigned initially
         break;
       case "ADMIN":
         rest.roles = ["STUDENT"];
@@ -65,17 +61,26 @@ const createUser = async (
         rest.facultyId = facultyId;
         break;
       default:
-        throw new Error("Invalid role");
+        throw new AppError("Invalid role", 500);
     }
 
     console.log(rest, "-------------------------");
 
+    const isUniqueEmail = await prisma.user.findFirst({
+      where: {
+        email: rest.email,
+      },
+    });
+    if (isUniqueEmail) {
+      throw new AppError("Email is already used", 500);
+    }
     const newUser = await prisma.user.create({
       data: rest as Prisma.UserUncheckedCreateInput,
     });
 
+    // Send a welcome email (outside transaction)
     if (newUser?.email) {
-      await mailer(
+      mailer(
         newUser.email,
         "Welcome to the platform",
         generateEmailMarkup({
@@ -121,6 +126,49 @@ const getUser = async (
 
     if (search?.schoolId) {
       whereCondition.schoolId = search?.schoolId;
+    }
+
+    console.log(whereCondition);
+
+    // Get total count
+    const total = await prisma.user.count({
+      where: whereCondition,
+    });
+
+    // Fetch paginated data
+    const data = await prisma.user.findMany({
+      where: whereCondition,
+      skip: (pageNum - 1) * size,
+      take: size,
+    });
+
+    return { data, total, limit: size, page: pageNum };
+  } catch (err) {
+    throw err;
+  }
+};
+const getStudents = async (
+  limit?: number,
+  page?: number,
+  search?: { facultyId?: string; schoolId?: string },
+): Promise<getReturn> => {
+  try {
+    const pageNum = page ?? 1;
+    const size = limit ?? 10;
+
+    const whereCondition: any = {
+      isActive: true,
+      isArchived: false,
+      roles: {
+        has: "STUDENT",
+      },
+    };
+
+    if (search?.schoolId) {
+      whereCondition.schoolId = search?.schoolId;
+    }
+    if (search?.facultyId) {
+      whereCondition.facultyId = search?.facultyId;
     }
 
     console.log(whereCondition);
@@ -296,6 +344,7 @@ export {
   createUser,
   getUser,
   getById,
+  getStudents,
   updateById,
   resetPassword,
   adminProfile,

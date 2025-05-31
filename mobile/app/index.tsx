@@ -116,7 +116,7 @@ function LoginScreen() {
               className={`w-full h-12 px-4 border rounded-full focus:outline-none ${
                 errors.email ? "border-red-500" : "border-gray-300"
               } bg-white`}
-              placeholder="asimneupane11@gmail.com"
+              placeholder="example@gmail.com"
               keyboardType="email-address"
               autoCapitalize="none"
               onChangeText={(text) => setValue("email", text)}
